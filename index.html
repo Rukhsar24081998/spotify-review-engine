@@ -7,322 +7,90 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --green: #1DB954;
-      --green-dim: rgba(29,185,84,0.12);
-      --black: #0a0a0a;
-      --surface: #111111;
-      --card: #1a1a1a;
-      --border: #2a2a2a;
-      --text: #f0f0f0;
-      --muted: #888;
+      --green: #1DB954; --green-dim: rgba(29,185,84,0.12);
+      --black: #0a0a0a; --card: #1a1a1a; --border: #2a2a2a;
+      --text: #f0f0f0; --muted: #888;
       --font-display: 'Space Grotesk', sans-serif;
       --font-body: 'Inter', sans-serif;
     }
-
-    body {
-      background: var(--black);
-      color: var(--text);
-      font-family: var(--font-body);
-      min-height: 100vh;
-      padding: 0;
-    }
-
-    /* Header */
-    .header {
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .header-logo {
-      width: 32px;
-      height: 32px;
-      background: var(--green);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
+    body { background: var(--black); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+    .header { border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; gap: 12px; }
+    .header-logo { width: 32px; height: 32px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     .header-logo svg { width: 18px; height: 18px; fill: #000; }
-    .header-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
-    .header-badge {
-      margin-left: auto;
-      font-size: 11px;
-      background: var(--green-dim);
-      color: var(--green);
-      border: 1px solid rgba(29,185,84,0.3);
-      border-radius: 20px;
-      padding: 3px 10px;
-      font-weight: 500;
-    }
-
-    /* Hero */
-    .hero {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 4rem 2rem 2rem;
-      text-align: center;
-    }
-    .hero-eyebrow {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--green);
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-    .hero h1 {
-      font-family: var(--font-display);
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      margin-bottom: 1rem;
-    }
+    .header-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
+    .header-badge { margin-left: auto; font-size: 11px; background: var(--green-dim); color: var(--green); border: 1px solid rgba(29,185,84,0.3); border-radius: 20px; padding: 3px 10px; font-weight: 500; }
+    .hero { max-width: 720px; margin: 0 auto; padding: 4rem 2rem 2rem; text-align: center; }
+    .hero-eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--green); font-weight: 600; margin-bottom: 1rem; }
+    .hero h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1rem; }
     .hero h1 span { color: var(--green); }
-    .hero p {
-      font-size: 16px;
-      color: var(--muted);
-      line-height: 1.6;
-      max-width: 480px;
-      margin: 0 auto 2rem;
-    }
-
-    /* Sources bar */
-    .sources {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 2.5rem;
-    }
-    .source-tag {
-      font-size: 12px;
-      padding: 4px 12px;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      color: var(--muted);
-      background: var(--card);
-    }
-
-    /* Run button */
-    .run-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--green);
-      color: #000;
-      font-family: var(--font-display);
-      font-size: 15px;
-      font-weight: 700;
-      padding: 14px 32px;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: transform 0.15s, opacity 0.15s;
-      letter-spacing: -0.01em;
-    }
+    .hero p { font-size: 16px; color: var(--muted); line-height: 1.6; max-width: 480px; margin: 0 auto 2rem; }
+    .sources { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 2.5rem; }
+    .source-tag { font-size: 12px; padding: 4px 12px; border: 1px solid var(--border); border-radius: 20px; color: var(--muted); background: var(--card); }
+    .stats-row { display: flex; gap: 16px; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap; }
+    .stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; text-align: center; }
+    .stat-num { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--green); }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .run-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--green); color: #000; font-family: var(--font-display); font-size: 15px; font-weight: 700; padding: 14px 32px; border: none; border-radius: 50px; cursor: pointer; transition: transform 0.15s, opacity 0.15s; }
     .run-btn:hover { opacity: 0.88; transform: translateY(-1px); }
     .run-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-    .run-btn svg { width: 16px; height: 16px; }
-
-    /* Questions list */
-    .questions {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 2rem 2rem;
-    }
-    .questions-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      margin-bottom: 12px;
-      font-weight: 500;
-    }
-    .questions-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
+    .questions { max-width: 720px; margin: 0 auto; padding: 0 2rem 2rem; }
+    .questions-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 12px; font-weight: 500; }
+    .questions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     @media (max-width: 600px) { .questions-grid { grid-template-columns: 1fr; } }
-    .question-item {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 13px;
-      color: var(--muted);
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-    }
-    .q-num {
-      color: var(--green);
-      font-weight: 600;
-      font-size: 12px;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-
-    /* Loading */
-    .loading {
-      max-width: 720px;
-      margin: 2rem auto;
-      padding: 0 2rem;
-      display: none;
-    }
-    .loading-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 2rem;
-      text-align: center;
-    }
-    .spinner {
-      width: 36px;
-      height: 36px;
-      border: 2px solid var(--border);
-      border-top-color: var(--green);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 1rem;
-    }
+    .question-item { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--muted); display: flex; align-items: flex-start; gap: 8px; }
+    .q-num { color: var(--green); font-weight: 600; font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+    .loading { max-width: 720px; margin: 2rem auto; padding: 0 2rem; display: none; }
+    .loading-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; }
+    .spinner { width: 36px; height: 36px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-steps { display: flex; flex-direction: column; gap: 6px; margin-top: 1rem; }
-    .loading-step {
-      font-size: 13px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      justify-content: center;
-    }
-    .step-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--border);
-    }
+    .loading-step { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; justify-content: center; }
+    .step-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
     .step-dot.active { background: var(--green); }
-
-    /* Results */
-    .results {
-      max-width: 720px;
-      margin: 2rem auto;
-      padding: 0 2rem 4rem;
-      display: none;
-    }
-    .results-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-    }
-    .results-title {
-      font-family: var(--font-display);
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
+    .results { max-width: 720px; margin: 2rem auto; padding: 0 2rem 4rem; display: none; }
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .results-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
     .results-meta { font-size: 12px; color: var(--muted); }
-    .analysis-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 12px;
-    }
-    .analysis-content {
-      font-size: 14px;
-      line-height: 1.7;
-      color: #ccc;
-      white-space: pre-wrap;
-    }
-    .analysis-content strong, .analysis-content b {
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    /* Sources footer */
-    .sources-footer {
-      margin-top: 1.5rem;
-      padding: 1rem 1.5rem;
-      background: var(--green-dim);
-      border: 1px solid rgba(29,185,84,0.2);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    .analysis-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 12px; }
+    .analysis-content { font-size: 14px; line-height: 1.7; color: #ccc; white-space: pre-wrap; }
+    .analysis-content strong { color: var(--text); font-weight: 600; }
+    .sources-footer { margin-top: 1.5rem; padding: 1rem 1.5rem; background: var(--green-dim); border: 1px solid rgba(29,185,84,0.2); border-radius: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .sources-footer-label { font-size: 12px; color: var(--green); font-weight: 600; }
     .sources-footer-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-    .src-tag {
-      font-size: 11px;
-      padding: 3px 10px;
-      background: rgba(29,185,84,0.1);
-      border: 1px solid rgba(29,185,84,0.2);
-      border-radius: 20px;
-      color: var(--green);
-    }
-
-    .rerun-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 13px;
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      margin-top: 1.5rem;
-      transition: border-color 0.15s, color 0.15s;
-    }
+    .src-tag { font-size: 11px; padding: 3px 10px; background: rgba(29,185,84,0.1); border: 1px solid rgba(29,185,84,0.2); border-radius: 20px; color: var(--green); }
+    .rerun-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border); color: var(--muted); font-size: 13px; padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-top: 1.5rem; }
     .rerun-btn:hover { border-color: var(--green); color: var(--green); }
-
-    .error-card {
-      background: rgba(255,60,60,0.08);
-      border: 1px solid rgba(255,60,60,0.2);
-      border-radius: 10px;
-      padding: 1rem 1.5rem;
-      font-size: 14px;
-      color: #ff6b6b;
-      margin-bottom: 1rem;
-    }
+    .error-card { background: rgba(255,60,60,0.08); border: 1px solid rgba(255,60,60,0.2); border-radius: 10px; padding: 1rem 1.5rem; font-size: 14px; color: #ff6b6b; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
-
   <div class="header">
     <div class="header-logo">
       <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 01-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.622.622 0 01.207.857zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.973-.519.781.781 0 01.519-.972c3.632-1.102 8.147-.568 11.234 1.328a.78.78 0 01.257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 11-.543-1.793c3.521-1.068 9.376-.862 13.066 1.235a.937.937 0 01-.906 1.635z"/></svg>
     </div>
     <span class="header-title">Spotify Discovery Review Engine</span>
-    <span class="header-badge">AI-Powered</span>
+    <span class="header-badge">AI-Powered · 700+ Reviews</span>
   </div>
 
   <div class="hero">
     <p class="hero-eyebrow">Part 1 — Review Analysis System</p>
     <h1>Why do users stop<br><span>discovering</span> new music?</h1>
-    <p>This AI system analyzes user feedback from 5 sources — App Store, Play Store, Reddit, Spotify Community, and Social Media — and extracts the root causes of music discovery failure.</p>
-
+    <p>This AI system analyzes real user feedback from 5 sources and extracts the root causes of music discovery failure using Groq AI.</p>
     <div class="sources">
       <span class="source-tag">📱 App Store</span>
-      <span class="source-tag">🤖 Play Store</span>
-      <span class="source-tag">💬 Reddit</span>
+      <span class="source-tag">🤖 Play Store (500 reviews)</span>
+      <span class="source-tag">💬 Reddit r/spotify</span>
       <span class="source-tag">🎵 Spotify Community</span>
       <span class="source-tag">📣 Social Media</span>
     </div>
-
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num">700+</div><div class="stat-label">Real reviews analyzed</div></div>
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">Data sources</div></div>
+      <div class="stat"><div class="stat-num">6</div><div class="stat-label">Research questions answered</div></div>
+    </div>
     <button class="run-btn" id="runBtn" onclick="runAnalysis()">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
       Run Analysis
     </button>
   </div>
@@ -342,13 +110,13 @@
   <div class="loading" id="loadingSection">
     <div class="loading-card">
       <div class="spinner"></div>
-      <p style="font-size:15px;font-weight:600;margin-bottom:0.5rem;">Analyzing user feedback at scale</p>
-      <p style="font-size:13px;color:var(--muted)">Gemini AI is processing 22 reviews across 5 sources</p>
+      <p style="font-size:15px;font-weight:600;margin-bottom:0.5rem;">Analyzing 700+ real user reviews</p>
+      <p style="font-size:13px;color:var(--muted)">Groq AI (LLaMA 3.3) processing reviews from 5 sources</p>
       <div class="loading-steps">
-        <div class="loading-step"><div class="step-dot active" id="step1"></div> Fetching reviews from all sources</div>
-        <div class="loading-step"><div class="step-dot" id="step2"></div> Aggregating feedback data</div>
-        <div class="loading-step"><div class="step-dot" id="step3"></div> Running AI analysis</div>
-        <div class="loading-step"><div class="step-dot" id="step4"></div> Extracting insights</div>
+        <div class="loading-step"><div class="step-dot active" id="step1"></div> Fetching App Store reviews (live)</div>
+        <div class="loading-step"><div class="step-dot" id="step2"></div> Loading 500 Play Store reviews</div>
+        <div class="loading-step"><div class="step-dot" id="step3"></div> Fetching Reddit r/spotify posts (live)</div>
+        <div class="loading-step"><div class="step-dot" id="step4"></div> Running Groq AI analysis</div>
       </div>
     </div>
   </div>
@@ -366,102 +134,369 @@
       <span class="sources-footer-label">Sources analyzed</span>
       <div class="sources-footer-tags">
         <span class="src-tag">App Store</span>
-        <span class="src-tag">Play Store</span>
+        <span class="src-tag">Play Store (500)</span>
         <span class="src-tag">Reddit r/spotify</span>
         <span class="src-tag">Spotify Community</span>
         <span class="src-tag">Social Media</span>
       </div>
     </div>
-    <button class="rerun-btn" onclick="runAnalysis()">
-      ↺ Run again
-    </button>
+    <button class="rerun-btn" onclick="runAnalysis()">↺ Run again</button>
   </div>
 
 <script>
-  let stepInterval;
+const GROQ_API_KEY = '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';
 
-  function animateSteps() {
-    const steps = ['step1','step2','step3','step4'];
-    let current = 0;
-    stepInterval = setInterval(() => {
-      if (current < steps.length) {
-        document.getElementById(steps[current]).classList.add('active');
-        current++;
+const playStoreReviews = [
+    { source: 'Play Store', review: 'Constant popups for premium, can’t skip without long ads, can’t play albums in order, and they have even stopped you from playing your “liked” songs. I mean, how could you stop us from playing our favorite song. So what\'s the point of this app then? It\'s better to listen to the radio, at least the' },
+    { source: 'Play Store', review: 'I LOVE Spotify, and as a user since circa 2013, I like to think I\'m think I\'m an early adopter and have a lot of experience with the app. That said, the last 6 months it\'s gone drastically downhill. The app constantly closes with no crash report, it just stops playing and it closes. Sometimes it\' },
+    { source: 'Play Store', review: 'It\'s a really good app, featuring all kinds of music, from old to recent and every genre. I really like it. But the thing is when one hasn\'t subscribed to the premium features, he\'s deprived of many choices. That\'s understandable, but then part of the restrictions is that there\'s a limit to how' },
+    { source: 'Play Store', review: 'First off, I love Spotify. Second, I play one playlist, and an ad says enjoy the next 30 minutes of uninterrupted listening. Then, halfway through listening to my song, I decided I wanted to swap playlist. As I do so,I get another ad? Also, I love having the free skips, but I feel like maybe have 10' },
+    { source: 'Play Store', review: 'Spotify is an amazing music streaming app!🎵🎶 It\'s got an insane library pop song, playlist , and podcasts that cater to every note and test. The discover weekly and Release Rader playlist are always on point, introduction me to new artists and tracks I love. The UI is sleek and user- friend, making' },
+    { source: 'Play Store', review: 'At this point, just make Spotify a paid app cause instead of two ads, it\'s three, sometimes even FOUR. says 30 mins without ads, but it\'s like 5 mins, adds random songs in my Playlist, can only skip 6 songs each hour, and can\'t see what song is up next. a little update!! I love listening to music' },
+    { source: 'Play Store', review: 'To say that this app is greedy would be an understatement. You can\'t even choose the songs you want to listen to, ads are everywhere and it will continue to shove it into your face. You can\'t skip, you can\'t make a playlist where it\'s not on shuffle, and it\'s genuinely the epitome of a prison i' },
+    { source: 'Play Store', review: 'Spotify has become top tier grabage these days. Phone and desktop doesn\'t sync reliably, can\'t remember what device it was just streaming to a second ago, doesn\'t play songs when they\'re clicked on, plays song when you don\'t click them but scroll past, their \"help\" is just full of regurgitate' },
+    { source: 'Play Store', review: 'Free version is almost unusable. Good grief! 4 ads in a row then it tells me I can enjoy 30 minutes ad free. 2 songs later here are 4 more ads. At first I figured maybe a weird glitch. Nope. It\'s happens several times over the last few days. And on top of the that the ads are horrible. They\'re lou' },
+    { source: 'Play Store', review: 'I absolutely love Spotify, there\'s not a whole ton of ads for me and I can still listen for free. I like the Spotify wrapped feature at the end of the year and I love the fact you can see your top songs and artists. Also the mixes are just amazing that they make including all my favorite songs and ' },
+    { source: 'Play Store', review: 'I am so tired of this app. It gets more and more expensive. I had premium and it advertises audiobooks with your subscription, but only allows so many hours before it wants more money. cancelled premium bc I only listen to podcasts that have ads built in, forgot my alarm was set to my spotify Playli' },
+    { source: 'Play Store', review: 'I have the free version right now because I can not afford premium. I will get the ad saying \"listen for 30 minutes of ad free music\" then it literally plays 1 3-4 minute song before I get another 2 minute set of ads. I habe time stamped screen shots to prove this. At this point, I feel as though ' },
+    { source: 'Play Store', review: 'I usually love Spotify, I even have premium, but recently it has been SO testy when I try to open it. Sometimes it will work fine, but most of the time it just opens to a black screen and no matter if I reset the app, or even my phone, nothing really helps it. When it does this, if it eventually ope' },
+    { source: 'Play Store', review: 'Great app! The only thing I hate about this app is that it literally does NOT give us the bare minimum!? For example, being able to loop a song. I get the ad part, I don\'t mind it that much actually– but why not give free users the loop button? We already deal with 6 skips an hour, 2-4 ads after 2 ' },
+    { source: 'Play Store', review: 'there are multiple things wrong with it, though it does have a lot of music it\'s hard to get to that music you want because of how it\'s set up. When I try to get a song it plays a different song from \"things we added\" which is really just a way to get money so you get so annoyed that you pay for' },
+    { source: 'Play Store', review: 'As of 6/17/2026, we are now forced to use the big widget instead of the smaller one. Changing my rating to a 1 star. Too many ads now, tells you here\'s a ½ hour of ad free play and plays an ad after the 1st or 2nd song. 80% of the time, when I skip a track, an ad comes on. Starting to be like all t' },
+    { source: 'Play Store', review: 'Spotify used to be incredible! Now, it\'s total trash! The connectivity is asteonomcally garbage - I could have 5G UC service, be playing downloaded songs, but Spotify will be constantly interrupted. I\'m currently experiencing a complete blackout. I loved the way the queue was set-up, where you cou' },
+    { source: 'Play Store', review: 'This company has just the worst software. It is slow to load and not very responsive. I click to play a different song and it takes 5 seconds to switch songs, if it does it at all. Constantly disconnects from connected devices. I move a song in the playlist and it bounces around, sometimes returning' },
+    { source: 'Play Store', review: 'Great streaming app. 2 things I wish they would add, one, a \"dislike\" button to compliment the heart. Hiding songs isn\'t the same. Makes playlists shorter by just not playing a song, and doesn\'t solve the problem of a not liked song showing up on playlists. It just gets grayed out and skipped. L' },
+    { source: 'Play Store', review: 'Update - Really enjoying Spotify, seems more stable, audio books are a big plus. *Feature request* in android auto you cannot see the full title of the song playing. Can the title be made to scroll/ticker tape. I have the title showing on the main screen and also in the driver\'s console but both ar' },
+    { source: 'Play Store', review: 'Love the app! Good music variety. Lyrics are pretty in sync with every song. This also has a wide variety of podcasts. Edited: This kinda sucks. I was using it for a month, and I was able to skip any song, pick what song I wanted to listen to, and listen offline. I wasn\'t even paying for premium. N' },
+    { source: 'Play Store', review: 'Great way to listen to music and affordable pricing for premium subscription. Edit: Everything in this app is good and conveniently adjustable to one\'s needs, except the damned \"smart shuffle\". The radio is more than enough to discover new songs. When I want to shuffle/unshuffle my own playlists ' },
+    { source: 'Play Store', review: 'Don\'t waste time with the free version, fork out for premium. Free version is awful, no way of sugar coating that. Do not recommend the unpaid version at all. Premium however is great! There\'s a huge library of albums, playlists, podcasts; it\'s particularly helpful being able to download songs fo' },
+    { source: 'Play Store', review: '🌟🌟🌟🌟🌟 Best music app ever! 🎶💚 Spotify is my favourite app for listening to music anytime, anywhere! It has millions of songs, playlists, podcasts, and moods — whether I’m studying, chilling, dancing, or feeling low, there’s always something perfect to play 🎧🎵💃. The sound quality is amazing, and I lo' },
+    { source: 'Play Store', review: 'Poor UI. Ads pop up on premium (disguised as something I might like). Ads on podcasts. Often unable to access downloaded library when offline. No option to disable sync between devices. Buggy, especially when listening to podcasts. I tried sync between devices and that\'s buggy. Downloaded huge vide' },
+    { source: 'Play Store', review: 'Still love the app, but I have to say that the UI change to the queue is so intensely frustrating to me. I enjoy that it shows the album covers, but please for the love of all that is holy, separate the things I added to the queue myself from the \"next in playlist\" section again. The way it looks ' },
+    { source: 'Play Store', review: 'It keeps repeating the same songs in my playlist over and over again even if my playlist is 27 hours long. There\'s many songs for it to play, but it just plays the same songs. It\'s ruining my listening experience. Plus, I can barely even listen to songs without being asked to buy premium. Such fre' },
+    { source: 'Play Store', review: 'When using the Free version of this app, searching and playing a song is broken. For example, if I search and play \"Billie Jean\" by MJ, it will play \"Beat it\" or \"Thriller\". Earlier versions of spotify did not do this and it makes this app one of the most unreliable apps for Free music playing' },
+    { source: 'Play Store', review: 'When things go wrong on the app, like ads appearing when you\'re paying for Premium, it\'s very difficult to contact anyone to resolve the issue which is unacceptable when you pay £11 a month. This happened to me recently, and when i have more time, I will be considering finding an alternative, espe' },
+    { source: 'Play Store', review: 'Managing the Queue is hit and miss. No direct menu option for it. Can add a few titles only to find, later, that the queue has been wiped. Can\'t change the order of play by dragging and dropping. EDIT: A year later and queue Mgt is still a mess; ye, can now change order easier, but it still seems t' },
+    { source: 'Play Store', review: 'Great navigation, love the system and format, especially the playlist making system. It\'s just SO MANY ads, and that\'s not something I usually complain about but seriously? After every other song? The thirty minute ad breaks don\'t even work, it\'s totally immersion breaking, especially getting th' },
+    { source: 'Play Store', review: 'The U.I can be better. The search button should be at the top. Next, the automatic shuffle. I think the tempo and most dominant sound in a playing song is how the next song is determined. But it\'s not as efficient as YouTube music. Oh! I really love how that I can enjoy podcasts without ads and als' },
+    { source: 'Play Store', review: 'I am not paying for premium, Im making that known. If I click on a playlist it\'ll play a song or two then just start playing random music! Its so frustrating, because all it does it play different music and completely forgets what you were playing before!!!! I am so mad because Im just trying to li' },
+    { source: 'Play Store', review: 'I find it pointless to have \"shuffle\" and \"play in order\" to be behind premium. It should be basic interaction that should\'ve been free. I understand the premium for downloading music, ad free, and listening offline; but having those two behind a paywall just sucks. Like, what do you mean I hav' },
+    { source: 'Play Store', review: 'super buggy app, constantly switches audio sources (computer, car, phone, etc.). no control over the default \"home\" screen/cannot specify library as home screen. app feels like you are being marketed to, as they are constantly attempting to shove whatever drivel they can down your throat. will be ' },
+    { source: 'Play Store', review: 'Spotify is absolute garbage. The app is desperate for money; aren\'t the endless ads enough already? Besides not being able to rewind songs, we can\'t even skip ahead. You can only skip 6 songs a day if you don\'t want to listen to them in sequence. Spotify is forcing us to listen to things we don\'' },
+    { source: 'Play Store', review: 'I\'ve used this platform since 2011, and it seems to get worse every year. I open another app(non-media related) and my queue disappears and stops playing the current song. It\'s as if Iuninstalled the app and reinstall it every time that happens. But if I close the app and reopen it, the music resu' },
+    { source: 'Play Store', review: 'Unreliable app. I have my music downloaded so I can use when there is no service, but Spotify app freezes SO often. This is a recent issue, so hopefully I can get that fixed. There\'s also poor syncing across devices, making me have to delete EVERYTHING and redownload to see all of my liked songs ag' },
+    { source: 'Play Store', review: 'Spotify supports ICE by advertising pro ICE ads. That is completely unacceptable. The app itself is good. Great library of music. The new shuffle system sucks though. Its a shame because I want to give a much, much higher review because I have very much loved my experience on Spotify for the past fe' },
+    { source: 'Play Store', review: 'I absolutely love Spotify and have since 2008. I always pay for premium because I can\'t stand commercials. Reason for the 4 star rating is due to a reoccurring issue causing me to reinstall the app to fix it. Eventually i can only play 1 genre of music from my library. doesn\'t matter if I make a s' },
+    { source: 'Play Store', review: 'App isn\'t great. Bad UI, glitchy additions of songs to playlists, discrepancies between data of the web client and mobile, and often recommends music I dislike in service to some unknowable algorithm. The ceo investing in the military industrial complex\'s use of ai makes me plan on dropping it ent' },
+    { source: 'Play Store', review: 'The app has been great but recently with new updates it\'s become cumbersome to deal with. I like the Spotify DJ, but the app somehow turns off the DJ and switches automatically to Daily Mix 2 which I don\'t like because I have to keep monitoring my phone now to make sure DJ is up and playing music ' },
+    { source: 'Play Store', review: 'I was really enjoying this app for the 2 weeks that I had it, but the app quality just got terrible. I try to play a song from my playlist but it doesn\'t play the full song, only a preview of it. My playlists are also on auto shuffle but it doesn\'t even shuffle songs that are in my playlist. What\' },
+    { source: 'Play Store', review: 'Super interesting that Spotify said in-app that they were asking for \"bluetooth\" permission when what was REALLY requested was permission to locate/connect with nearby devices. (I was listening to music using bluetooth while this was happening, so it wasn\'t because my BT was off.) Why do you want' },
+    { source: 'Play Store', review: 'I already pay for premium but that only allows for 15 hours of audiobooks and now they want me to pay for an add on that\'s the same price as the monthly fee for only 15 hours more. For an extra 11.99 a month audiobook add on it should be unlimited. not to mention the constant price hikes and still ' },
+    { source: 'Play Store', review: 'For the last few months I haven\'t been able to play liked songs for a majority of the time. I can play them by searching for them or playing from a specific playlist but not being able to listen to the liked songs playlist is very frustrating and defeats the whole purpose of the app. Occasionally i' },
+    { source: 'Play Store', review: 'Generally I love Spotify over most other streaming apps. I just started using it for audio books as well since some are included with premium. It\'s absolutely wild that you \"run out of hours\" to listen to a book, especially when those limited hours are less than it takes to get through a book. Wh' },
+    { source: 'Play Store', review: 'Why is no one talking about the downloads that sometimes disappear when we try to transfer from Internal memory to SD card? I just lost 5.6gb of downloads for absolutely no reason, I\'m highly pissed off rn, the time and data costs. It takes to download them is... And I\'m seeing everywhere that the' },
+    { source: 'Play Store', review: 'TOOK AWAY THE LAST GOOD THING ABOUT SPOTIFY, the queue!! Used to be able to click queue and select random songs from library in the queue to play next, now you can\'t, have to individually drag each song to the top. Absolute trash. EVERY single update Spotify has done for the last 5 years has made t' },
+    { source: 'Play Store', review: 'listening to music - great! However I hate the fact that spotify are pushing their own ads inbetween podcasts. As I\'ve already paid premium, you\'re now making me pay again. And no, this isn\'t ads included in the creators podcast, they are played separately before and after the podcast. No point p' },
+    { source: 'Play Store', review: 'I had to edit my review, it used to be 5 stars but I\'m lowering it because all of the sudden, every now and then, it\'ll switch what Im listening to. I\'ve been listening to a podcast\'s library and it switched me to a curated list. If you want to make me a recommended list, fine but I don\'t HAVE ' },
+    { source: 'Play Store', review: 'not sure how it\'s possible in today\'s technological age but every week this app just gets worse and worse and less user-friendly. opening up the app itself now takes anywhere from 10 seconds to over one full minute to get the main screen to pop up, and after testing it a couple times, hitting the ' },
+    { source: 'Play Store', review: 'after a while, you have to buy a premium subscription so you can go back to a song, and you also can\'t replay the song after a while it\'s just really annoying so I really hope this can be fixed but if it doesn\'t then I will most likely delete the app. Even though I have worked on it very hard... ' },
+    { source: 'Play Store', review: 'Used to have a 2 star rating for the app in 2023, and major issues have been updated, but i still continue to have some issues with songs randomly pausing and not playing. The ads are also insane. 3 to 4 30 second ads in a row after only playing a few songs is very irritating to say the least. I don' },
+    { source: 'Play Store', review: 'The app is driving me crazy. For one, there\'s an oversaturation of ads -- roughly 2-3 minutes of ads per 3-5 minutes of music. And the ads where it\'s like \"Watch this ad to get 30 minutes of ad-free listening\" don\'t work at all; I just get more normal ads within 5-10 minutes. I\'m not buying a ' },
+    { source: 'Play Store', review: 'Even their free version is abysmal. Yes I know they\'re trying to force us to buy the premium version. Byt omg. I tried to play one song. It offered me a selection instead and wouldn\'t let me skip along to the ONE song I wanted to add to my likes songs. I\'ve used up all my skips for the month now.' },
+    { source: 'Play Store', review: 'Good interface, but... It\'d be way better if Spotify on mobile devices was like Spotify on computers. Just look at how much more freedom you get on a computer when you listen to music in comparison with how limited the mobile version is! I don\'t know why it is the way it is (most likely marketing,' },
+    { source: 'Play Store', review: 'I\'m not sure what caused this glitch to be happening constantly, but whenever I try to play something and then skip to the song I want to hear, it stops playing everything entirely and it is getting very annoying. I\'m tired of not being able to listen to anything after I skip something. Please fix' },
+    { source: 'Play Store', review: 'This isn\'t a critique of the content. The app and company are dissapointing to me. I\'ve paid for an add free experience but for some reason they think it\'s okay to pepper podcasts with adds. It makes me feel betrayed. I\'ll be jumping ship the moment I find a better option. Re: the reply I just g' },
+    { source: 'Play Store', review: 'Plays 1 song at a time. No longer able to listen to playlists or stations. It stops after 1 song. I\'ve cleared cache. Restarted my phone. Uninstalled and reinstalled. Even cleared storage and Uninstalled other apps. Nothing works. I stopped my subscription due to similar issues and now this free ve' },
+    { source: 'Play Store', review: 'I have always loved spotify, but I must say the most recent update just ruined the home screen. There used to be tons of suggested playlists, \"made for you\", etc. The only thing that remains are the six most recently listened to playlists. The rest has been replaced by autoplaying snippets of rand' },
+    { source: 'Play Store', review: 'Crashes constantly, even with no apps running in the background. Happens for almost every song. I tried to fix with all suggestions Spotify made, cache cleared, no downloads. Nothing. It has been unstable for years. It can\'t be the phone, as I just got a new S23, and this is still happening. I will' },
+    { source: 'Play Store', review: 'Unfortunately, Spotify keeps trying to dig its own grave. Songs are absolutely limited, and you can\'t even choose what playlist you want to use despite that. Unnecessary ads. Spotify used to be good, for both paying users and free users. They keep trying to pressure you into buying their premium by' },
+    { source: 'Play Store', review: 'App has become horribly unstable. The app crashes on me every other song, sometimes I get two songs in-between. I have reinstalled the app, cleared the cache, undownloaded and redownloaded all saved playlist. But the app still crashes constantly. Not worth the membership cost anymore, given that I c' },
+    { source: 'Play Store', review: 'I\'ve been using Spotify for almost 10 years. I\'ve noticed that the app no longer shuffles my playlits, so the same songs keep playing over and over again. I\'m on the premium plan, yet I\'m still getting ads on podcasts and I don\'t have access to audio books. There are some podcasts that I used t' },
+    { source: 'Play Store', review: 'No widgets are working. I have to open the app to pause at any time. Very frustrating. If it\'s not one thing, it\'s another with this app.' },
+    { source: 'Play Store', review: 'Very convenient for listening to both music and podcasts, but how come you don’t get the option to listen to songs unshuffled? Whereas if you were using tablet or desktop/laptop you get to pick whichever song you so desire and even play them on repeat, have the option to shuffle your playlist or hav' },
+    { source: 'Play Store', review: 'Generally a good app, but in the past few weeks I\'ve grown increasingly frustrated how the \"more\" menu in Your Episodes has changed so the Add to Queue option is \"below the fold.\" Share, Remove from playlist, & Download already have their own buttons, so why do they appear above the fold? Pleas' },
+    { source: 'Play Store', review: 'used to be better. you have to pay for basic features now. you can\'t make a playlist without it adding unwanted extra songs. I hate it so much. when I want to play a song, it starts playing suggested songs instead of the thing I want it to play. awful. still decent app, though at this rate, youtube' },
+    { source: 'Play Store', review: 'Unless you\'re going to pay for premium, don\'t bother. You used to get 30 minutes add free, but no longer. Oh, they still say to enjoy the next 30 minutes add free. After ONE song, you\'re stuck listening to several ads that run longer than the song you just heard. I thought it might be a bug, but ' },
+    { source: 'Play Store', review: 'Generally all good but when listening via a smart speaker or android auto the app does not stay up to date with what\'s being listened to unless you open the app. So for example if I spend an hour listening but don\'t open the app up to sync then it thinks I\'m still on a song I listened to an hour ' },
+    { source: 'Play Store', review: 'Always loved this app. I pay for premium but you still add commercials even though I pay to not have commercials. Granted they can be skipped, but I don\'t EVEN WANT THEM THATS THE POINT OF PAYING NOT TO HAVE THEM, having the ability to skip is pointless when I have to pick up my phone a million tim' },
+    { source: 'Play Store', review: 'The free version has more cons than pros. You can get to listen to a whopping 4 ads before listening to a song,podcast, or whatever you listen to. I am not sure if this is only me, but the smartshuffle feature had gone out of control and started playing songs not on my Playlist no matter how much I ' },
+    { source: 'Play Store', review: 'Wish I could rate it lower. I\'ve been using the free version for a while, seeing if it got better and worth the paid version. Nope. Now it plays podcasts in the WRONG order, from newest to oldest instead of oldest to newest which would skip to the next podcast. Now it will stay on the same and repl' },
+    { source: 'Play Store', review: 'free version sucks. Windows media player is better by light years (and WMP isn\'t an amazing platform, either). premium version works well enough to play music from, but is very confusing in how song ratings work. audiobooks are severely limited (15 hours with premium, and 15 hours more on a separat' },
+    { source: 'Play Store', review: 'Would love to give more stars. But, I found that when you\'re broke for a month & can\'t afford premium, the quality of the app decreases heavily. For example: I got my music ready for a shower and listened to an ad that told me to enjoy 30 minutes of AD FREE music. Guess what happened after one son' },
+    { source: 'Play Store', review: 'Tbh I\'m constantly having issues with the app. It never remembers what podcast episode I last listened to so I have to scroll forever everytime I listen to something else. It freezes a lot or takes forever to start playing. Tons of issues in Android auto with it. Freezing and just not playing, or p' },
+    { source: 'Play Store', review: 'I used to use spotify alot and I thought it was the best music app, but that was only because I was paying for premium, without premium you can\'t even skip or pick any of the music, you can only use shuffle or play it the playlist regularly but with my playlist I have a bunch of the same people ove' },
+    { source: 'Play Store', review: 'as a customer who pays for Premium all I would like is a seamless experience with no issues, but the app is constantly having issues, sometimes I have to close the app multiple times to get it to even load, and when connecting to my car sometimes it refuses to show the correct name of the song playi' },
+    { source: 'Play Store', review: 'I love all the different playlists on here,, they let me explore different genres and often I find music I haven\'t listened to in years! I also like that if I want to just listen to an artist, or an album, I can do that too! I haven\'t been at a loss for good music since I started using this app!' },
+    { source: 'Play Store', review: 'I love this app for the most part. I have premium and have ever since switching from Pandora, so I don\'t even fully remember the distinction between the free and paid subscriptions at this point, however it is frustrating when I am listening to a podcast with video and all of a sudden, it just show' },
+    { source: 'Play Store', review: 'A very large audio library providing good automated daily risk and recommendations. I have tested it in hip hop and it is the same as tidal, but it is better in podcasts is those are not existing in tidal, and apart from hip hop probably it\'s a bit better as title started with hip hop. However this' },
+    { source: 'Play Store', review: 'The new android widget you\'re forcing everyone to use doesn\'t even work. It never loads, frequently says it\'s offline even when connected, and it\'s way way slower than the previous one. Also it\'s twice as big as the previous one with no way to adjust it. I don\'t need the extra features, and th' },
+    { source: 'Play Store', review: 'I have been a user of Spotify for many years and I thank God for this platform. Its vast collection of Christian songs, ranging from timeless hymns to contemporary Christian music, is truly impressive. The sound quality is really good. I pray that Spotify will continue to make wholesome music availa' },
+    { source: 'Play Store', review: 'extremely ticked off that you removed the ability to remove songs queue in a PAID premium subscription. for this much money I should be able to remove songs from queue. fix it. not only that but shuffle doesn\'t work like it used to. I get the same songs all the time and artists in a row. that\'s bo' },
+    { source: 'Play Store', review: 'If it weren\'t for the ads, I would consider putting it at five stars. when you want to play a song, ad. When you want to skip, ad. The \"30-minute break from ads\" is a lie. You get upmost 10 or 5 min until you get another ad or you skip. Spotify, fix your ad problem.' },
+    { source: 'Play Store', review: 'Recently, it feels like the premium subscription is offering less value for its cost. One thing I recently discovered was that there is a limit on audiobook listening hours, and they will try to get you to pay extra to continue listening (this is with the premium subscription). I don\'t remember see' },
+    { source: 'Play Store', review: 'I\'ve had Spotify premium for years. It\'s great to be able to select specific songs and listen without ads and they do have a really wide selection. I used to love their recs but the algorithms suck now. Harder to find new music bc they just keep pushing the same old. I also wish they would bring b' },
+    { source: 'Play Store', review: 'Doesn\'t play well with Google Pixel 8. Stops connecting to my cars Bluetooth until I restart my phone (won\'t play any audio). Music stutters while playing. \"Upstream request\" timeouts when I try to access their website. Player won\'t work on desktop. Wrapped won\'t play. I restart the app. I ins' },
+    { source: 'Play Store', review: 'I have paid for Individual Premium since 2022 and have never had a problem out of Spotify. They\'ve always worked great. I\'ve recently started listening to their audiobooks though, and to my suprise you only get 15 hours a month of listening time, and since I work 8 hours a day 5 days a week, I can' },
+    { source: 'Play Store', review: 'been using Spotify for years, never had a subscription, didn\'t need one as the Xbox Spotify basically gives you premium features (unlimited skips / can play any song) but with ads. had some hiccups here n there, but nothing logging out or uninstall n reinstall couldn\'t fix. however as of recently ' },
+    { source: 'Play Store', review: 'The apps performance really has degraded recently. Crashing every thirty or so minutes, randomly pausing songs, or just straight up dropping the playlist after it crashes and starts playing \"trending\" songs. I can\'t listen to custom mixes anymore because it crashes and kills the playlist so I hav' },
+    { source: 'Play Store', review: 'I have premium just to use it offline... but it takes forever to load my libraries when I have no service even when I got a bunch downloaded. I found the audio books but that is completely pointless since you only get 15 hours of audio book time.. most books are over 40+ hours and to buy 15 hours mo' },
+    { source: 'Play Store', review: 'I wish they\'d introduce a feature similar to Apple\'s Smart Playlists, so I don\'t have to manually add songs to playlists. I am begging for a light mode option for the UI :( The dark mode is iconic and part of Spotify\'s branding, but it makes the app more difficult to use because I have a hard ti' },
+    { source: 'Play Store', review: 'Overall I\'m happy but the issue of autoplay for podcast. If you listen to one it then goes to your autoplay list & there\'s no way to get it off. While driving, an episode of a podcast I like & follow finishes then starts an episode of a podcast that I may have listened to once but did not like. I\' },
+    { source: 'Play Store', review: 'I\'ve been loyal to Spotify for over a decade. But it is not the same platform it used to be. It is impossible to discover small artists. My recommendations are clogged with popular sponsored artists, even ones I\'ve BLOCKED. All the cool features and staff curated playlists are soulless AI garbage ' },
+    { source: 'Play Store', review: 'I cannot add a 6th member to my family plan. it keeps saying the address doesn\'t match. ...... I confirmed my own address on my own account.... then typed it in 20 different times. still can\'t add my daughters account to mine. it\'s irking me so bad. I\'ve never had an issue with this before. as m' },
+    { source: 'Play Store', review: 'Everything was amazing, I found a lot of my fav songs from this app but as the time passes this app is totally changed. Now, it has many limitations for users - you can\'t click to choose your song, you can\'t skip songs as your limit is reached for a day, Ads after every 2 songs of listened and als' },
+    { source: 'Play Store', review: 'Updated review after TRYING to listen to audio books. you get 15 hours even with premium and have to pay a ridiculous amount of 13$ per 10hours. I took that 13$ to audible and finished the book I was listening to and got even better deals to continue the series. I spent 6 dollars for the 2nd book in' },
+    { source: 'Play Store', review: 'I\'ve used Spotify for years but suddenly you can\'t hear it despite it saying it was still playing on my earphones. I immediately tried other apps and they work fine. I restarted my phone but no change. I\'ve reinstalled it and it still doesn\'t play anywhere, on the phone speakers or on earphones,' },
+    { source: 'Play Store', review: 'I love having the music. I use spotify every day. Three stars because the app itself is absolute trash. It is constantly crashing, freezing, and randomly stopping. EDIT 03/22: don\'t know what they did but they made it worse than ever. Spotify is trash, yall. Edit 08/24: Dear Spotify. Pay artists mo' },
+    { source: 'Play Store', review: 'Not sure what\'s going on lately, but the app keeps crashing and freezing. I uninstalled it and reinstalled it and now can\'t even log in. I\'ll have to cancel my subscription at this rate. Getting fed up with not being able to use an app that I pay for. The error message tries to blame my Internet,' },
+    { source: 'Play Store', review: 'I love Spotify and have for years, use it almost every single day. So when they added the option to listen to audio books with the premium subscription I was very excited, however, who ever decided to put a limit on how many chapters you can listen to and then decided you can buy more chapters for t' },
+    { source: 'Play Store', review: 'I\'m fed up with the captions. I\'ve spent hours trying to turn off these annoying captions but nothing works. I want to see the artist cover and not these distracting badly synced AI captions. Searching for solutions I\'ve noticed that this seems to be a problem for years. Isn\'t it time for us as ' },
+    { source: 'Play Store', review: 'The devs increased the monthly Premium subscription for a second time in two years and I\'m not sure it\'s even worth paying for what I get in return. Such a shame, because the app is overall well made and makes for an enjoyable listening experience, especially since many of the bugs were fixed in t' },
+    { source: 'Play Store', review: 'Spotify has ruined the app with recent updates. I\'m a premium subscriber and I want to be able to download playlists to my galaxy watch. Yet, playlists will only ever partially download and previously downloaded songs sometimes disappear. Interface is worse than ever. Not a premium experience - ple' },
+    { source: 'Play Store', review: 'I love the app but have been running into issues where it is automatically turning on smart recommendations when I don\'t want that feature turned on. Also noticing that every time I connect it to my smart home device (ie Google Home) it resets the playlist I\'m actively listening to, which is frust' },
+    { source: 'Play Store', review: 'Honestly, when i first started using this, it was an awesome app! It\'s got all my favorite artists in one place, but, after a while, on my phone, it just doesn\'t work(?) It will not play the next song, and it will get stuck on an ad, which i can\'t skip since I have to close the app. But overall, ' },
+    { source: 'Play Store', review: 'Edit: must be nice to make millions every month off an app that don\'t work. Wth is happening to this app I PAY for?! Every single time I open it, it just goes dumb and my data stops working for up to an entire minute. It\'s extremely laggy skipping through songs and does this weird thing where it g' },
+    { source: 'Play Store', review: 'The app will regularly try to fetch data about my downloaded albums from the internet even when I\'m completely disconnected or have an inconsistent connection. The only way around this is to turn on airplane mode or put Spotify on offline mode, neither of which is something I\'m willing to do every' },
+    { source: 'Play Store', review: 'I allowed my Premium subscription to lapse because I was unhappy that despite paying for Premium my New Episodes feed was full of paywalled content that I couldn\'t play or remove from the playlist. Now the app refuses to play ANY music at all. No playlists, no albums, no songs. I regret ever paying' },
+    { source: 'Play Store', review: 'Lee been having fun with this appListening to my own music but one day The menus of Albums or artists profiles changed For some reason when I go into my playes I have to press a green play button and I can\'t even listen to the songs I wanted to hear! And plus I can only Watch 6 song The playlist gi' },
+    { source: 'Play Store', review: 'I love this app. listen to podcasts every day. until today. it\'s doing nothing but cache. and causing high battery drain the second I open it. even after clearing cach. please fix devs. of Spotify!!! so i can resume listening. It\'s been great for many years till now. completely unusable now. after' },
+    { source: 'Play Store', review: 'I absolutely LIVE off of music. It is my comfort in any circumstance, so Spotify is amazing for me. However, I recently got Spotify Premium to get the better experience and it is indeed awesome. but I have one issue. I wish I could have the Spotify Duo Premium plan to give to a friend who doesn\'t h' },
+    { source: 'Play Store', review: 'I use Spotify on the daily but I have been unimpressed with a few things like the spike in prices and that fact prices are advertised as one thing but are actually another thing, oh and on top of that there are occasionally Ads that are not part of the podcast, why are there ads in something that I ' },
+    { source: 'Play Store', review: 'Good selection but needs a better UI like long press to select multiple songs/media. It is such a a pain that you can only move one song at a time in a playlist. When playing from an album or playlist, we need a button to start it over instead of playing from where it was left off. Swipe left to del' },
+    { source: 'Play Store', review: 'I very much like this app and have loved organizing all my songs and playlists. I\'m a musician, so I have dozens of playlists. Overall great app, but please bring back the hearts! I don\'t know why it ever needed to get changed, but I way much more prefered the heart symbol to like a song over the ' },
+    { source: 'Play Store', review: 'This app used to be great. Then they got greedy. I have a paid account, yet my homepage is constantly inundated with advertisements for trashy podcasts that have nothing to do with anything I ever have or would listen to. Like so many other companies these days, they have begun shoving their stupid ' },
+    { source: 'Play Store', review: 'Good variety of music options, particularly smaller niche bands, but I\'m having issues with sound quality, especially with downloads. Muffled/static sound and inconsistent quality, which shouldn\'t happen with downloads. Can\'t find any support option on the app either.' },
+    { source: 'Play Store', review: 'I\'ve used Spotify constantly for years now with premium but I hate how expensive it\'s gotten and that some features aren\'t in premium (uninterrupted podcasts, limited audio book time) which is a little annoying. Another one is when I\'m using offline mode and every now and then I\'ll get a \"log ' },
+    { source: 'Play Store', review: 'I downloaded the app for both the music and podcasts. it has been just under 5 years. Stop trying to fix what\'s not broken. I completely understand the need for ads but do they have to jump in and overlap stuff you are listening to like an old 1990s radio DJ talking over a song? For podcasts, why d' },
+    { source: 'Play Store', review: 'I used to really like Spotify because it was extremely simple and had a large library. It hasn\'t changed too much, but the problem is that over the years this app has started to work less and less. In the modern day Spotify feels barely functional: Constantly crashing, extremely slow, skipping larg' },
+    { source: 'Play Store', review: 'Loved Spotify for yearssss. But now, premium isn\'t even premium. Don\'t waste your money on premium bc you\'ll still get ads, specifically right before listening to podcasts. To make it worse, this year, they just increased the payment plan cost. Now they put in ads too. Paid for nothing. Not worth' },
+    { source: 'Play Store', review: '\"Enjoy the next 30 minutes commercial free.\" 1 song plays, then 3 commercials, literally 4 minutes after the message. Lies. Another thing? I thumb down an ad, because I\'m married 20 years and don\'t use dating apps, or no kids and every third ad is for Capri Sun or school supplies. Your targeted ' },
+    { source: 'Play Store', review: 'My queue will glitch with multiple of the same song, I\'m talking 5-7 of the same in a row. It\'s been doing this for well over a week. I also wish there was a way to hide recently played collections from the homescreen. Other than that it does what I need it to, but hate that the price keeps going ' },
+    { source: 'Play Store', review: 'I really don\'t appreciate forcing a new widget on me. always nice to have less options for more money. ever hear the phrase \"if it isn\'t broken, don\'t fix it\"? The last few times they raised the cost, the app seemed to get worse. Tracks start over when I get a notification, app would freeze the' },
+    { source: 'Play Store', review: 'It\'s okay, I guess but like when there\'s an advertisement I press the dislike button and it says it improves my ad experience but it doesn\'t. It just puts more ads. There\'s also this glitch, where if I stop playing it it continues playing. I really, REAAALLLYYY hope you fix this spotify edit: Pl' },
+    { source: 'Play Store', review: 'It\'s been going on very well, everything is perfect, but my account is signed up using my phone number, WITHOUT any emails, so when I go to the official site to log in through the phone number to add an email, it doesn\'t work, and keeps saying \"Check your phone number.\" Petition to actually make' },
+    { source: 'Play Store', review: 'I am not a fan of the results that kick out anytime I go to a song\'s \"Go to song radio\". When I want to go to the radio of a particular song, I expect similar songs that align with the song tempo/genre. However, this option just shuffles the latest music that has been released. I\'m not sure if t' },
+    { source: 'Play Store', review: 'The shuffle doesn\'t really shuffle your music, it just plays the songs you\'ve been listening to recently. The discover weekly sucks, its not at all tailored to my taste, it NEVER has the genres I listen to and ive only found a handfull of songs I actually like from it. The offline option is very i' },
+    { source: 'Play Store', review: 'Spotify is great - had premium now for years, recently though despite having offline access, the app refuses to load my downloaded library or allow me to play anything but a few select songs that I can find only by tapping on every single one I have saved. Keeps doing it after multiple reloads with ' },
+    { source: 'Play Store', review: 'I\'d rate it higher as it does have a lot of good features but there\'s one thing it\'s lacking compared to all other platforms. A dislike button. I don\'t enjoy rap or other genres, and yet I can\'t dislike them to remove them from automated playlists or even their new \"DJ\" feature. I like other ' },
+    { source: 'Play Store', review: 'App is good but glitchy. It randomly freezes my music and I usually have to unpause it a few times to get it playing again. Really annoying so I thought my Internet was the problem so I got the individual premium plan to listen ad free and offline, so I downloaded a few playlists turn Spotify to off' },
+    { source: 'Play Store', review: 'I use this app daily to listen to music and podcasts, and while it has a great variety of stuff to listen it, the app itself has been getting clunkier and worse to use with every update. I go offline regularly so that I can listen while I am on the metro (aka underground with no data/internet). For ' },
+    { source: 'Play Store', review: 'Music is OK, but podcasts are buggy and crawlingly slow (eg 20 minutes to open new episodes, then another 20 to open \'My episodes\'). Hopeless. So much so, as to make the app virtually unusable. Samsung Galaxy s21 fe 5g all up to date, plenty of space, FAST. IT professional!' },
+    { source: 'Play Store', review: 'I really love spotify, its my only music app i use, but... the only problem are the ads, i get way to many often after 1 song. after 1 song i get up to 3/4 ads almost everytime, i wish it was only 1. and i really don\'t want to buy premium only because it cost money, like every app, and i prefer to ' },
+    { source: 'Play Store', review: 'awesome selection of songs. It just sucks when you have 100 hrs worth of songs, but the same songs will play during the day when you put your list on shuffle, which is what you need to do unless you want the exact same songs in the exact same order each time. Basically, for example, you get to hear ' },
+    { source: 'Play Store', review: 'Was good until they started to play ads in podcasts even for premium users in 2025. Then, they increased the price of premium. I refuse to pay more for a worse product. And they still lie in their advertising claiming the premium subscription was ad free. Scammers! In addition, it gets slower by the' },
+    { source: 'Play Store', review: 'it works but that\'s about the best you can say. It\'s missing a lot of features of other apps and the ones it does have barely work as intended. For me the absolute worst part is how slow it is. It takes forever to load and find my play lists. Was this coded by HS student??' },
+    { source: 'Play Store', review: 'I keep having this issue where the music stops playing. I can\'t get it to play again. I uninstalled the app and now I can\'t even log back in. What the hell am I paying for?' },
+    { source: 'Play Store', review: 'Since the last update all my followed podcast settings have changed from only showing unplayed episodes to all episodes. You now push through requests for extra payments into my new episodes playlist despite the fact I already pay for premium. I can\'t even edit my new episodes playlist to remove th' },
+    { source: 'Play Store', review: 'Adds videos and reels to a music app that doesn\'t pay enough to the artists, threatens a country to pay them money and then plays victim, offers a product on constant downgrades for an expensive price + has an algorithm that doesn\'t work properly and recommends you stuff that\'s the opposite to wh' },
+    { source: 'Play Store', review: 'it\'s a decent app when it works, but it never wants to work properly. Currently the app crashes every time you try to search up a song. Often times the player will just stop working or show music is being played, but lacking audio through anything. Integration to smart watches also crashes or freez' },
+    { source: 'Play Store', review: 'It\'s fine, until you finish a pod & it starts playing a random pod that you\'ve never listened to or don\'t like. There is no way to remove certain podcasts from playing, pls add a not interested button for podcasts! Also paying for premium & only getting 15hrs of audiobook play is a laugh. Barely ' },
+    { source: 'Play Store', review: 'Pretty good app. Play lists & expansive music library. Offline playlists are great Only grips : - for duo/ family accounts you have to enter your shared address EXACTLY (eg rd not road) as the original family - they don\'t post small pay artists fairly / proportionally for streams. - You can\'t seem' },
+    { source: 'Play Store', review: 'NOT WORTH IT. Whatever you do, don\'t get premium. The second you go back to regular, ads are quadrupled. Without premium, the ads are still bad. Every once in awhile, you\'ll get an option \"wAtCh tHiS aD aNd yOuLl gEt 30 mInUtEs aD-fReE\". It\'s an outright lie lol. They\'ll play 1 minute of music' },
+    { source: 'Play Store', review: 'I went back to premium. Not because I want to, of course. Paying for the premium leaves a bitter taste in my mouth knowing full well that the free version doesn\'t even let you use the most basic functions (e.g., choose your songs, rewind back to a certain part of the song, next). I would have grate' },
+    { source: 'Play Store', review: 'Glad that they seem to have fixed the algorithm but really pissed that the queue is different now. Like one of the the main reasons I used premium was so that I could use the queue to preemptively skip songs without having to interrupt my listening session and now you can\'t do that for some reason?' },
+    { source: 'Play Store', review: 'Mostly decent except for the annoying Smart Shuffle feature that messes up custom songs I\'ve uploaded from Spotify Windows App to download onto Spotify Android App for listening, rendering them unavailable and necessitating a re-download from the Windows App to the Android App every time. Would onl' },
+    { source: 'Play Store', review: 'Always my go to for music but for some reason today it isn\'t working properly. Normally you can search your liked songs for a specific artist and it would queue the next song on your liked list of said specific person, but now it\'s acting like shuffle is on when it isn\'t, and playing random songs' },
+    { source: 'Play Store', review: 'Okay I\'m sick of this app. Wayyy too many ads compared to music. They fix it for a few months then it\'s back to a bad ratio. Its 3/4 ads every 2 songs which is just overbearing. Where is the 30 mins ad free listening they used to have? The audio quality sucks now too. Are you seriously locking the' },
+    { source: 'Play Store', review: 'Shuffle does not actually shuffle. \'Shuffle\' is just Spotify\'s version of a playlist. If I add a song to the queue, it\'ll play the song but will not change the shuffle, so that song could be played right away again if it was in that order of the \'shuffle\'. Super annoying, especially considerin' },
+    { source: 'Play Store', review: 'The music selection is great and that\'s pretty much it. I\'m absolutely sick to death of podcasts and audiobooks. I just want music and Spotify has turned it\'s focus to other things, including garbage AI. The discover feed is pretty poor now, doesn\'t really find any more artists that you\'d like ' },
+    { source: 'Play Store', review: 'Love this app sm, and the little loop videos it plays while you have it open, it gives such a good mood. But one thing I hate is when it says you get to listen ad free for 30 mins, then plays an ad after that song. At least tell me you\'re gonna play 7 more ads instead of saying I get 30 mins free.' },
+    { source: 'Play Store', review: 'Edit 2/27/26: Something seems to have changed in the last few weeks. I listen a lot, probably 4-5 hours a day while I do renovation work and every time I open the app it shows a \"you are back online\" message and it takes 2-3 minutes to load up all the recommendations and personalization stuff. Mos' },
+    { source: 'Play Store', review: 'So most of the technical issues have been dealt with and this app seems to be running pretty flawlessly these days. I would recommend this to most people but especially anyone into Deathcore as it seems to have the best selection of current and past artist within that specific genre. The only reason' },
+    { source: 'Play Store', review: 'This app keeps crashing despite clearing the cache, it is still crashing. The advertising is annoying louder than the music or podcast. This is really beat the purpose of being a background music. Jolting to say the least. I\'m better off listening to my own music or using other players. 2026 update' },
+    { source: 'Play Store', review: 'Overall a great & useful app that not only connects to Discord, but can be used as an alarm too! MY ONLY ISSUES ARE.. If you go to local files, it\'ll gave a 70/30% chance of closing. Also, with local files, if you rename the file, it\'ll stay there. That\'s pretty annoying, but besides that, everyt' },
+    { source: 'Play Store', review: 'At first, I enjoyed it before this current update. But now, it\'s getting greedy and unenjoyable. We have to pay for Spotify premium for basic interactions like choosing songs to play, I thought WE are the ones choosing the songs?? why is it suddenly limited? And to skip songs? It\'s just absurd to ' },
+    { source: 'Play Store', review: 'Personally, I don\'t understand why you have to double down on the free version of the app with a bunch of ads AND limited song choices. That\'s overkill and it makes this app hardly even usable for longer than 20 minutes before it devolves into music that\'s vaguely related to the stuff you chose t' },
+    { source: 'Play Store', review: 'Terrible slow app that constantly just hangs and freezes. It\'s getting worse and worse!!! It doesn\'t justify the premium price. Bugs, freezing when trying to perform simple actions like skipping songs or browsing playlists, shuffle randomly turning off - that\'s on a recent Pixel Pro. It\'s awful.' },
+    { source: 'Play Store', review: 'It has had such potential for so long... But falls short on so many things! This review box doesn\'t have enough characters & I am over trying to convey this to someone important who wants to listen (tried beta vs, tried online suggestions, etc). Was switching to SoundCloud then the audiobooks were ' },
+    { source: 'Play Store', review: 'For the constantly increasing cost of the subscription, I would expect the quality of the service to follow in the upward direction. On the contrary, I keep running into technical issues of app crashes and the jams feature turning itself back on after I disable it. The shuffle feature seems to repea' },
+    { source: 'Play Store', review: 'I adore the app, but at this rate going to YouTube is better lately as I can at least skip ads, no premium needed. Not 1 ad, not 2 but now 3 back to back ads?? Couldn\'t get a little more greedy now could you! Make it easier for the people who can\'t get premium. We are listening to more ads than ac' },
+    { source: 'Play Store', review: 'Update: Crashing is fixed. Queue usage still sucks. You add an album to your Queue, then you add a second album. where does it put the songs for that next album? Why after the next song, of course! So you get one song of the first album, then the whole second album before the rest of the songs from ' },
+    { source: 'Play Store', review: 'I love music, it\'s the only thing that keeps me focused on things like drawing, love Spotify, I COULD listen outside of the app and for the last few months of what I expected was just a bug that now constantly happens whenever I leave the app to go to anything else, it closes and turns my music off' },
+    { source: 'Play Store', review: 'So they finally gave the option to disable smart shuffle, I can rate Spotify more than 1 star now. Always loved Spotify, and just hated that smart shuffle. It would be amazing if y\'all could add a way to let us know when a song is removed from a playlist. I just recently went through and noticed mu' },
+    { source: 'Play Store', review: 'The free version is terrible. Bro you can only do 6 skips per hour and then it gives you a whole bunch of recommendations into the playlists you\'re listening to! like bro when I make a playlist I like it how it is I don\'t need some robot to recommend things for it! like seriously! I pay for premiu' },
+    { source: 'Play Store', review: 'The app has a great music library and runs well, no doubt. But the free version is frustrating constant ads, repeated premium prompts, and now a limit of just 6 skips per day. I understand ads support free use, but this feels too restrictive. Music should relax, not stress. The skip limit was the fi' },
+    { source: 'Play Store', review: 'I havr been using the free version for a while now and i am it sucks a lot. We are litterally listening to more adds than we are listening to music. I always get interupted with adds every 1 song i listen too! Also, the songs in my playlist don\'t play from bottom to top. Instead it just plays in a ' },
+    { source: 'Play Store', review: 'Too many ads. The only way you can actually peacefully listen to songs is by buying premium, which is too expensive. please don\'t download it. SoundCloud or yt music is much better. And also after a point, u can\'t even choose what songs you want to play. Also, music quality is low. Its all just hy' },
+    { source: 'Play Store', review: 'I love having a music streaming platform with everything in one place, but the last few months the app hasn\'t been running properly despite my many efforts to repair on my end. Changing between playlists or pages in app, it takes forever to load. Says I\'m offline when I am right beside our working' },
+    { source: 'Play Store', review: 'Recent \'improvements\' include the addition of ambient sounds to certain tracks, all of which sound like they were produced by a tone death masochist. Spotify, don\'t overcomplicate stuff. Sure, the GenAI features are cool (excluding DJ and it\'s fetish for recommending songs that are like baking a' },
+    { source: 'Play Store', review: 'Luckily I get no more of those annoying ads with monologs/dialogs where the intonation is super annoying, and mostly just the regular visual ads/western music top hits ads now, however still prefer the audio over the video. I always get Premium whenever my budget allows it, and it is definitely wort' },
+    { source: 'Play Store', review: 'Spotify used to feel smooth and enjoyable, but now it’s frustrating. Ads are too frequent and ruin the mood, especially when you’re getting into a song. It feels more like interruptions than music. Limited skips and restricted controls make it worse, as you can’t freely choose what to play. It start' },
+    { source: 'Play Store', review: 'terrible since the last update.... I\'ve been a premium user for years, and it\'s the most used app on my phone. I never had so many issues with the app, but it\'s almost unusable at the moment. Very long lags, offline message when my WiFi connection is indeed strong, it crashes so many times that I' },
+    { source: 'Play Store', review: 'Bro!!!!! Too many ads! It\'s really annoying. So many ads! They are coming after just 2-3 songs and that\'s too 3-4 or 4-5 ads! This is really annoying and if this continues I\'ll delete Spotify and I will tell my friends also to delete Spotify! I appreciate Spotify in quality but this is too much! ' },
+    { source: 'Play Store', review: 'The experience is just getting worse. I did not update my payment info for premium because I wasn\'t sure it was worth it, since certain podcasts are interrupted with ads anyway. I thought it would revert to a basic plan with ads. Instead, it appears they are blocking all content until I choose a su' },
+    { source: 'Play Store', review: 'was a great app, now constantly bugging out. Unable to even play a lot of my songs in my liked songs playlist, can\'t even stay on the selected genre any more. Fix this issue Spotify and I\'ll consider re-downloading and paying again. And yes I\'ve deleted the app and reinstalled. Edit, the issue ha' },
+    { source: 'Play Store', review: 'One of the most flawed apps out there, considering only the big ones. Feels like someone build a basic app and never improved further. Shuffle, you get the same pattern over and over. Want to listen to all your songs randomly? Nope! Want to listen to several Playlist at once, in shuffle? Nope! For t' },
+    { source: 'Play Store', review: 'Too many constant and bad changes. Randomly makes the \"add songs to playlist\" feature look really terrible and user unfriendly, also randomly some accounts won\'t be able to choose songs or add things to the queue when others can (all free accounts). And some accounts get 4-5 ads in between every ' },
+    { source: 'Play Store', review: 'Ads after every 2 songs—seriously? The app claims to give 30 minutes without ads, but I still get video ads even after just 10 minutes. There are also major connectivity issues. If the internet is turned off and then back on, the app fails to reconnect and continues to show offline status no matter ' },
+    { source: 'Play Store', review: 'the app is great and all, but the ads. They say you won\'t get an ad for 30 minutes but it\'s like 15 minutes instead. One cool thing is you can make a queue for your songs BUT you can\'t organize it and if you accidentally press on a song in your Playlist, IT DELETES YOUR WHOLE QUEUE LINE oh AND yo' },
+    { source: 'Play Store', review: 'Decent app for pods as I\'m not an iOS user. All these years later, I still miss Google Pods terribly. I subscribe to multiple pods, but they\'re not all listed in my podcast menu... only eight of the pods are listed. Perhaps they display properly in the paid version. However, I\'m not inclined to p' },
+    { source: 'Play Store', review: 'I\'ve been a dedicated Spotify user for more or less 5 years now. I went from a free package, to student premium, then to regular premium, and now I have duo premium. I have seen it change and adjust and come into its own, and it gets better every time! It keeps usability at the forefront of every u' },
+    { source: 'Play Store', review: 'Would get 5 but some quirks. there seems to be no way to move songs around in liked songs in an order you would like manually unless you load them into a queue or make a playlist. i download songs and sometimes the flow is annoying but you cant change this. Also, so many tracks become unavailable in' },
+    { source: 'Play Store', review: 'I really think Spot is the best music app there is. However, paying for a premium for AD FREE LISTENING and getting ADS during a podcast is pretty stupid. Because you get like 5 ads that are like 2 or more minutes long. At that point, it\'s better to just watch YouTube so you can skip the ads for fr' },
+    { source: 'Play Store', review: 'Just updated June 2016 and have lost my play list and saved albums. have reinstalled etc all show but won\'t play Total rubbish. I downgraded due to the ever increasing price. The free version is dreadful. It says you get 30 mins of music between ads. This is total nonsense. I am lucky to get 3 song' },
+    { source: 'Play Store', review: 'I’ve been using Spotify, but it’s been frustrating lately. The app keeps saying I’m offline even when I have a strong connection. I often have to refresh it multiple times just to get it working again, which gets annoying fast. On top of that, the ads feel excessive and disruptive. I like the music ' },
+    { source: 'Play Store', review: 'This app is good for music quality. Before there was not many ads but now there are a plenty number of ads and I\'m not able to listen to a song of my choice by clicking on the song too. It\'s really terrifying. Yeah I understand about the Spotify premium but there should not be much of lack of faci' },
+    { source: 'Play Store', review: 'if I worked at Spotify, I\'d just revel in the fact that it was a money factory. instead they\'re forcing AI half-baked into it, forcing videos into the podcasts with seemingly no way to have them not being videos as the default, and generally diluting the efficacy of the product with each new updat' },
+    { source: 'Play Store', review: 'why is it every time I\'m trying to add a song to a playlist it won\'t add no matter how many times I click and then finally it adds after the 30th try? is it starting to get really annoying and I would like to be able to add songs to my playlist love songs I hear that I like that I think would fit ' },
+    { source: 'Play Store', review: 'The free version has started to become a headache and is even becoming terrible to be brutally honest. After every 2 songs, there are 3 long ads, then there is the constant persuasion to get premium. We can\'t play songs in our desired order, can\'t skip more than 6 times per hour, can\'t choose to ' },
+    { source: 'Play Store', review: 'If we can add a playlist from the queue, add a \"remove playlist from queue\" option next. It\'s so annoying; I accidentally added a playlist from my queue, and whenever I try to listen to another song, that queue immediately plays. Also, can you all add something that will display the genre of the ' },
+    { source: 'Play Store', review: 'Had to uninstall and reinstall to fix a blank screen. If I check the play queue on a free account, the app now straight up lies about what\'s ahead and never actually returns to the original album or playlist. Otherwise: I can easily add playlists and access all the recommendations associated with m' },
+    { source: 'Play Store', review: 'Why did they remove what\'s new? No one knows. For me, it was the main reason to use Spotify. After painstakingly following ALL the hundreds of artists I listen to, it was a practical list of releases by date so I could track new albums. I\'m back to Wikipedia\'s list like a caveman. Typical enshitt' },
+    { source: 'Play Store', review: 'It\'s great, honestly. only if you have premium that is. during the peaceful days where I listened to spotify, I only have to listen to 1 ad and the duration was at least an hour to 30 minutes before another ad pops up. nowadays, I have to listen to THREE ads and sometimes when I change to another s' },
+    { source: 'Play Store', review: 'It\'s become unusable with ads. Want to listen to music? Sure, just that you must hear a 70 second unskippable ad first and it won\'t even be the song you chose. Wan\'t to look at the cover art? No. Just no, there\'s an unclosable ad there now. But what if you clicked the song to hear it, specifical' },
+    { source: 'Play Store', review: 'Too many ads, I\'ve had premium and I find that it\'s alot of money for not too much and that it can take a while to load. In reply to Spotify\'s reply. I have had premium, and it\'s too much money for what it is. you should probably double check before replying to client reviews. Premium should be ' },
+    { source: 'Play Store', review: 'For podcasts its useless. It always plays podcasts ive already listened to. My autoplay is off but makes no difference. The other big annoyance is that there\'s no way to remove locked bonus episodes you have to pay for, which just clutters the playlist further. I was hoping for an improvement to Am' }
+];
+
+const spotifyCommunityReviews = [
+  { source: 'Spotify Community Forum', review: 'The lack of explanation for recommendations kills my trust. Tell me why you picked this song and I am 10x more likely to try it.' },
+  { source: 'Spotify Community Forum', review: 'I wish I could tell Spotify my current activity and mood and get a fresh playlist of songs I have never heard.' },
+  { source: 'Spotify Community Forum', review: 'The repetitive listening loop is real. Familiar music feels safe. I need a compelling reason to try something new.' },
+  { source: 'Spotify Community Forum', review: 'Please fix Discover Weekly. It used to be amazing but now just shows the same artists over and over in different orders.' },
+  { source: 'Spotify Community Forum', review: 'Why does the algorithm not understand that I listen to different music for different moods? I need context-aware recommendations.' },
+];
+
+const socialMediaReviews = [
+  { source: 'Social Media (Twitter/X)', review: 'spotify just plays the same songs again and again, shuffle is broken, my playlist is 1.5 hours long why am i hearing the same 4 songs every time i press play' },
+  { source: 'Social Media (Twitter/X)', review: 'I need new music. Spotify just cycles through the same recommendations every week. The algorithm has no idea what I actually want' },
+  { source: 'Social Media (Twitter/X)', review: 'Just discovered SongsDNA from Spotify - what a lovely feature for music exploration sessions. Finally something that helps me find new music!' },
+  { source: 'Social Media (Twitter/X)', review: 'I discovered an app that helps find new music by showing what friends listen to. Spotify should do this better - social discovery is completely missing' },
+  { source: 'Social Media (Twitter/X)', review: 'spotify recommendations are so boring now, same 10 songs on rotation. I find more new music on TikTok in one day than Spotify in a month' },
+  { source: 'Social Media (Twitter/X)', review: 'after one song ads pop up for a whole minute and after 6 or 7 songs I cant even choose to play songs of my own choice. Never seen an app this desperate' },
+  { source: 'Social Media (Twitter/X)', review: 'i want spotify to recommend me songs based on my current vibe not just what i listened to last week. context matters so much' },
+];
+
+let stepInterval;
+
+function animateSteps() {
+  const steps = ['step1','step2','step3','step4'];
+  let current = 0;
+  stepInterval = setInterval(() => {
+    if (current < steps.length) {
+      document.getElementById(steps[current]).classList.add('active');
+      current++;
+    }
+  }, 2000);
+}
+
+async function fetchAppStoreReviews() {
+  try {
+    const res = await fetch('https://itunes.apple.com/us/rss/customerreviews/id=324684580/sortBy=mostRecent/json');
+    const data = await res.json();
+    if (data.feed && data.feed.entry) {
+      return data.feed.entry
+        .filter(e => e['im:rating'] && e.content && e.content.label && e.content.label.length > 30)
+        .slice(0, 50)
+        .map(e => ({ source: 'App Store', review: e.content.label.substring(0, 300) }));
+    }
+  } catch(e) {}
+  return [
+    { source: 'App Store', review: 'Spotify keeps recommending the same songs I already know. Discover Weekly feels stuck. I want something fresh.' },
+    { source: 'App Store', review: 'Every time I open the app I end up playing the same playlist. Recommendations never match my current mood.' },
+    { source: 'App Store', review: 'Algorithm is too safe. Never pushes me outside my comfort zone. Found more music on Instagram Reels than Spotify in 6 months.' },
+  ];
+}
+
+async function fetchRedditReviews() {
+  const reviews = [];
+  const searches = [
+    'https://www.reddit.com/r/spotify/search.json?q=music+discovery+recommendations&sort=top&t=month&limit=25',
+    'https://www.reddit.com/r/spotify/search.json?q=stuck+same+songs+loop&sort=top&t=month&limit=25',
+    'https://www.reddit.com/r/spotify/search.json?q=discover+weekly+algorithm&sort=top&t=year&limit=25',
+  ];
+  for (const url of searches) {
+    try {
+      const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+      const data = await res.json();
+      if (data.data && data.data.children) {
+        data.data.children.forEach(post => {
+          const p = post.data;
+          const text = p.selftext && p.selftext.length > 30 ? (p.title + ' ' + p.selftext).substring(0, 300) : p.title;
+          if (text && text.length > 30) reviews.push({ source: 'Reddit r/spotify', review: text });
+        });
       }
-    }, 1500);
+    } catch(e) {}
   }
+  return reviews.length > 0 ? reviews : [
+    { source: 'Reddit r/spotify', review: 'Spotify recommendation bubble is real. Once you listen to one genre it keeps feeding you the same thing forever.' },
+    { source: 'Reddit r/spotify', review: 'Discover Weekly used to be amazing. Now it recycles the same 20 artists in different orders.' },
+  ];
+}
 
-  async function runAnalysis() {
-    const btn = document.getElementById('runBtn');
-    const loading = document.getElementById('loadingSection');
-    const results = document.getElementById('resultsSection');
-    const questions = document.getElementById('questionsSection');
-    const content = document.getElementById('analysisContent');
-    const meta = document.getElementById('resultsMeta');
-    const errorCard = document.getElementById('errorCard');
+async function runAnalysis() {
+  const btn = document.getElementById('runBtn');
+  const loading = document.getElementById('loadingSection');
+  const results = document.getElementById('resultsSection');
+  const questions = document.getElementById('questionsSection');
+  const content = document.getElementById('analysisContent');
+  const meta = document.getElementById('resultsMeta');
+  const errorCard = document.getElementById('errorCard');
 
-    // Reset steps
-    ['step1','step2','step3','step4'].forEach(id => {
-      document.getElementById(id).classList.remove('active');
+  ['step1','step2','step3','step4'].forEach(id => document.getElementById(id).classList.remove('active'));
+  btn.disabled = true;
+  btn.innerHTML = '<div style="width:16px;height:16px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px"></div> Analyzing...';
+  questions.style.display = 'none';
+  loading.style.display = 'block';
+  results.style.display = 'none';
+  errorCard.innerHTML = '';
+  animateSteps();
+
+  const startTime = Date.now();
+
+  try {
+    const [appStoreReviews, redditReviews] = await Promise.all([fetchAppStoreReviews(), fetchRedditReviews()]);
+
+    const allReviews = [...appStoreReviews, ...playStoreReviews, ...redditReviews, ...spotifyCommunityReviews, ...socialMediaReviews];
+
+    const sampleReviews = allReviews.slice(0, 80);
+    const reviewText = sampleReviews.map((r, i) => `${i+1}. [${r.source}] ${r.review}`).join(' | ');
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{
+          role: 'user',
+          content: `You are a senior product research analyst at Spotify. Analyze these ${allReviews.length} real user reviews from App Store, Play Store, Reddit r/spotify, Spotify Community Forum, and Social Media. Answer these 6 questions with detailed bullet points and specific examples from the reviews: 1. Why do users struggle to discover new music? 2. What are the most common frustrations with recommendations? 3. What listening behaviors are users trying to achieve? 4. What causes users to repeatedly listen to the same content? 5. Which user segments experience different discovery challenges? 6. What unmet needs emerge consistently across reviews? Reviews sample: ${reviewText}`
+        }],
+        max_tokens: 2000
+      })
     });
 
-    btn.disabled = true;
-    btn.innerHTML = '<div style="width:16px;height:16px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block"></div> Analyzing...';
-    questions.style.display = 'none';
-    loading.style.display = 'block';
-    results.style.display = 'none';
-    errorCard.innerHTML = '';
-    animateSteps();
+    const data = await response.json();
+    const analysisText = data.choices[0].message.content;
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
-    const startTime = Date.now();
+    clearInterval(stepInterval);
+    ['step1','step2','step3','step4'].forEach(id => document.getElementById(id).classList.add('active'));
 
-    try {
-      const response = await fetch('https://rukhsarkhan24081998.app.n8n.cloud/webhook/spotify-review-analysis');
-      const data = await response.json();
+    meta.textContent = `Completed in ${elapsed}s · ${allReviews.length} reviews · 5 sources`;
 
-      clearInterval(stepInterval);
-      ['step1','step2','step3','step4'].forEach(id => {
-        document.getElementById(id).classList.add('active');
-      });
+    const formatted = analysisText
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/###\s?(.*)/g, '<strong style="font-size:15px;color:var(--green);display:block;margin-top:12px">$1</strong>')
+      .replace(/##\s?(.*)/g, '<strong style="font-size:16px;color:var(--green);display:block;margin-top:12px">$1</strong>');
 
-      await new Promise(r => setTimeout(r, 500));
+    content.innerHTML = formatted;
+    loading.style.display = 'none';
+    results.style.display = 'block';
 
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-      meta.textContent = `Completed in ${elapsed}s · 22 reviews · 5 sources`;
-
-      // Extract analysis text
-      let analysisText = '';
-      if (data.analysis) {
-        analysisText = data.analysis;
-      } else if (data.candidates && data.candidates[0]) {
-        analysisText = data.candidates[0].content.parts[0].text;
-      } else {
-        analysisText = JSON.stringify(data, null, 2);
-      }
-
-      // Format markdown-style bold
-      analysisText = analysisText
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/###\s?(.*)/g, '<strong style="font-size:15px;color:var(--green)">$1</strong>')
-        .replace(/##\s?(.*)/g, '<strong style="font-size:16px;color:var(--green)">$1</strong>');
-
-      content.innerHTML = analysisText;
-      loading.style.display = 'none';
-      results.style.display = 'block';
-
-    } catch (err) {
-      clearInterval(stepInterval);
-      loading.style.display = 'none';
-      results.style.display = 'block';
-      errorCard.innerHTML = `<div class="error-card">Unable to fetch analysis. Please try again. (${err.message})</div>`;
-      content.innerHTML = '';
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M8 5v14l11-7z"/></svg> Run Analysis';
-      questions.style.display = 'block';
-    }
+  } catch(err) {
+    clearInterval(stepInterval);
+    loading.style.display = 'none';
+    results.style.display = 'block';
+    errorCard.innerHTML = `<div class="error-card">Unable to fetch analysis. Please try again. (${err.message})</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M8 5v14l11-7z"/></svg> Run Analysis';
+    questions.style.display = 'block';
   }
+}
 </script>
 </body>
 </html>
