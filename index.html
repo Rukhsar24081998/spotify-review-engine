@@ -15,11 +15,15 @@
       --font-body: 'Inter', sans-serif;
     }
     body { background: var(--black); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+
+    /* Header */
     .header { border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; gap: 12px; }
     .header-logo { width: 32px; height: 32px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     .header-logo svg { width: 18px; height: 18px; fill: #000; }
     .header-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
     .header-badge { margin-left: auto; font-size: 11px; background: var(--green-dim); color: var(--green); border: 1px solid rgba(29,185,84,0.3); border-radius: 20px; padding: 3px 10px; font-weight: 500; }
+
+    /* Hero */
     .hero { max-width: 720px; margin: 0 auto; padding: 4rem 2rem 2rem; text-align: center; }
     .hero-eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--green); font-weight: 600; margin-bottom: 1rem; }
     .hero h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1rem; }
@@ -34,12 +38,16 @@
     .run-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--green); color: #000; font-family: var(--font-display); font-size: 15px; font-weight: 700; padding: 14px 32px; border: none; border-radius: 50px; cursor: pointer; transition: transform 0.15s, opacity 0.15s; }
     .run-btn:hover { opacity: 0.88; transform: translateY(-1px); }
     .run-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Questions preview */
     .questions { max-width: 720px; margin: 0 auto; padding: 0 2rem 2rem; }
     .questions-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 12px; font-weight: 500; }
     .questions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     @media (max-width: 600px) { .questions-grid { grid-template-columns: 1fr; } }
     .question-item { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--muted); display: flex; align-items: flex-start; gap: 8px; }
     .q-num { color: var(--green); font-weight: 600; font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+
+    /* Loading */
     .loading { max-width: 720px; margin: 2rem auto; padding: 0 2rem; display: none; }
     .loading-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; }
     .spinner { width: 36px; height: 36px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
@@ -48,22 +56,36 @@
     .loading-step { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; justify-content: center; }
     .step-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
     .step-dot.active { background: var(--green); }
+
+    /* Results */
     .results { max-width: 720px; margin: 2rem auto; padding: 0 2rem 4rem; display: none; }
     .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 8px; }
     .results-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
     .results-meta { font-size: 12px; color: var(--muted); }
 
-    /* Per-question cards */
-    .qa-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 12px; }
+    /* QA Cards */
+    .qa-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 12px; transition: border-color 0.3s; }
+    .qa-card.streaming { border-color: rgba(29,185,84,0.4); }
+    .qa-card.done { border-color: var(--border); }
     .qa-question { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px; }
-    .qa-answer { font-size: 14px; line-height: 1.75; color: #ccc; }
+    .q-badge { background: var(--green-dim); border: 1px solid rgba(29,185,84,0.3); border-radius: 4px; padding: 2px 7px; font-size: 11px; flex-shrink: 0; }
+    .qa-answer { font-size: 14px; line-height: 1.75; color: #ccc; min-height: 24px; }
     .qa-answer strong { color: var(--text); font-weight: 600; }
-    .qa-answer ul { padding-left: 1.2rem; margin: 6px 0; }
-    .qa-answer li { margin-bottom: 4px; }
+    .qa-answer ul { padding-left: 1.4rem; margin: 6px 0; }
+    .qa-answer li { margin-bottom: 5px; }
 
-    /* Streaming cursor */
-    .streaming-cursor::after { content: '▋'; display: inline-block; animation: blink 0.7s step-end infinite; color: var(--green); }
+    /* Skeleton shimmer while waiting */
+    .skeleton { background: linear-gradient(90deg, var(--border) 25%, #333 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; height: 14px; margin-bottom: 8px; }
+    .skeleton:last-child { width: 60%; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Blinking cursor */
+    .cursor::after { content: '▋'; animation: blink 0.7s step-end infinite; color: var(--green); font-size: 13px; }
     @keyframes blink { 50% { opacity: 0; } }
+
+    /* Progress bar */
+    .progress-bar-wrap { height: 2px; background: var(--border); border-radius: 2px; margin-bottom: 1.5rem; overflow: hidden; }
+    .progress-bar { height: 100%; background: var(--green); border-radius: 2px; width: 0%; transition: width 0.4s ease; }
 
     .sources-footer { margin-top: 1.5rem; padding: 1rem 1.5rem; background: var(--green-dim); border: 1px solid rgba(29,185,84,0.2); border-radius: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .sources-footer-label { font-size: 12px; color: var(--green); font-weight: 600; }
@@ -75,152 +97,142 @@
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="header-logo">
-      <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 01-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.622.622 0 01.207.857zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.973-.519.781.781 0 01.519-.972c3.632-1.102 8.147-.568 11.234 1.328a.78.78 0 01.257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 11-.543-1.793c3.521-1.068 9.376-.862 13.066 1.235a.937.937 0 01-.906 1.635z"/></svg>
-    </div>
-    <span class="header-title">Spotify Discovery Review Engine</span>
-    <span class="header-badge">AI-Powered · 700+ Reviews</span>
-  </div>
 
-  <div class="hero">
-    <p class="hero-eyebrow">Part 1 — Review Analysis System</p>
-    <h1>Why do users stop<br><span>discovering</span> new music?</h1>
-    <p>This AI system analyzes real user feedback from 5 sources and extracts the root causes of music discovery failure using Claude AI.</p>
-    <div class="sources">
-      <span class="source-tag">📱 App Store</span>
-      <span class="source-tag">🤖 Play Store (500 reviews)</span>
-      <span class="source-tag">💬 Reddit r/spotify</span>
-      <span class="source-tag">🎵 Spotify Community</span>
-      <span class="source-tag">📣 Social Media</span>
-    </div>
-    <div class="stats-row">
-      <div class="stat"><div class="stat-num">700+</div><div class="stat-label">Real reviews analyzed</div></div>
-      <div class="stat"><div class="stat-num">5</div><div class="stat-label">Data sources</div></div>
-      <div class="stat"><div class="stat-num">6</div><div class="stat-label">Research questions answered</div></div>
-    </div>
-    <button class="run-btn" id="runBtn" onclick="runAnalysis()">
-      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
-      Run Analysis
-    </button>
+<div class="header">
+  <div class="header-logo">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 01-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.622.622 0 01.207.857zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.973-.519.781.781 0 01.519-.972c3.632-1.102 8.147-.568 11.234 1.328a.78.78 0 01.257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 11-.543-1.793c3.521-1.068 9.376-.862 13.066 1.235a.937.937 0 01-.906 1.635z"/></svg>
   </div>
+  <span class="header-title">Spotify Discovery Review Engine</span>
+  <span class="header-badge">AI-Powered · 700+ Reviews</span>
+</div>
 
-  <div class="questions" id="questionsSection">
-    <p class="questions-label">6 research questions being answered</p>
-    <div class="questions-grid">
-      <div class="question-item"><span class="q-num">Q1</span>Why do users struggle to discover new music?</div>
-      <div class="question-item"><span class="q-num">Q2</span>What are the most common frustrations with recommendations?</div>
-      <div class="question-item"><span class="q-num">Q3</span>What listening behaviors are users trying to achieve?</div>
-      <div class="question-item"><span class="q-num">Q4</span>What causes users to repeatedly listen to the same content?</div>
-      <div class="question-item"><span class="q-num">Q5</span>Which user segments experience different discovery challenges?</div>
-      <div class="question-item"><span class="q-num">Q6</span>What unmet needs emerge consistently across reviews?</div>
-    </div>
+<div class="hero">
+  <p class="hero-eyebrow">Part 1 — Review Analysis System</p>
+  <h1>Why do users stop<br><span>discovering</span> new music?</h1>
+  <p>This AI system analyzes real user feedback from 5 sources and extracts the root causes of music discovery failure.</p>
+  <div class="sources">
+    <span class="source-tag">📱 App Store</span>
+    <span class="source-tag">🤖 Play Store (500 reviews)</span>
+    <span class="source-tag">💬 Reddit r/spotify</span>
+    <span class="source-tag">🎵 Spotify Community</span>
+    <span class="source-tag">📣 Social Media</span>
   </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num">700+</div><div class="stat-label">Real reviews analyzed</div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-label">Data sources</div></div>
+    <div class="stat"><div class="stat-num">6</div><div class="stat-label">Research questions answered</div></div>
+  </div>
+  <button class="run-btn" id="runBtn" onclick="runAnalysis()">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
+    Run Analysis
+  </button>
+</div>
 
-  <div class="loading" id="loadingSection">
-    <div class="loading-card">
-      <div class="spinner"></div>
-      <p style="font-size:15px;font-weight:600;margin-bottom:0.5rem;">Analyzing 700+ real user reviews</p>
-      <p style="font-size:13px;color:var(--muted)">Claude AI processing reviews from 5 sources</p>
-      <div class="loading-steps">
-        <div class="loading-step"><div class="step-dot" id="step1"></div> Loading Play Store reviews</div>
-        <div class="loading-step"><div class="step-dot" id="step2"></div> Loading Reddit & Community posts</div>
-        <div class="loading-step"><div class="step-dot" id="step3"></div> Loading Social Media feedback</div>
-        <div class="loading-step"><div class="step-dot" id="step4"></div> Running Claude AI analysis</div>
-      </div>
-    </div>
+<div class="questions" id="questionsSection">
+  <p class="questions-label">6 research questions being answered</p>
+  <div class="questions-grid">
+    <div class="question-item"><span class="q-num">Q1</span>Why do users struggle to discover new music?</div>
+    <div class="question-item"><span class="q-num">Q2</span>What are the most common frustrations with recommendations?</div>
+    <div class="question-item"><span class="q-num">Q3</span>What listening behaviors are users trying to achieve?</div>
+    <div class="question-item"><span class="q-num">Q4</span>What causes users to repeatedly listen to the same content?</div>
+    <div class="question-item"><span class="q-num">Q5</span>Which user segments experience different discovery challenges?</div>
+    <div class="question-item"><span class="q-num">Q6</span>What unmet needs emerge consistently across reviews?</div>
   </div>
+</div>
 
-  <div class="results" id="resultsSection">
-    <div class="results-header">
-      <span class="results-title">Analysis Results</span>
-      <span class="results-meta" id="resultsMeta"></span>
+<div class="loading" id="loadingSection">
+  <div class="loading-card">
+    <div class="spinner"></div>
+    <p style="font-size:15px;font-weight:600;margin-bottom:0.5rem;">Analyzing 700+ real user reviews</p>
+    <p style="font-size:13px;color:var(--muted)">Preparing parallel AI analysis across 6 questions…</p>
+    <div class="loading-steps">
+      <div class="loading-step"><div class="step-dot active" id="step1"></div> Loading review data from 5 sources</div>
+      <div class="loading-step"><div class="step-dot" id="step2"></div> Sending to AI (all 6 questions at once)</div>
+      <div class="loading-step"><div class="step-dot" id="step3"></div> Streaming answers in real time</div>
     </div>
-    <div id="errorCard"></div>
-    <div id="qaContainer"></div>
-    <div class="sources-footer">
-      <span class="sources-footer-label">Sources analyzed</span>
-      <div class="sources-footer-tags">
-        <span class="src-tag">App Store</span>
-        <span class="src-tag">Play Store (500)</span>
-        <span class="src-tag">Reddit r/spotify</span>
-        <span class="src-tag">Spotify Community</span>
-        <span class="src-tag">Social Media</span>
-      </div>
-    </div>
-    <button class="rerun-btn" onclick="runAnalysis()">↺ Run again</button>
   </div>
+</div>
+
+<div class="results" id="resultsSection">
+  <div class="results-header">
+    <span class="results-title">Analysis Results</span>
+    <span class="results-meta" id="resultsMeta"></span>
+  </div>
+  <div id="errorCard"></div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  <div id="qaContainer"></div>
+  <div class="sources-footer">
+    <span class="sources-footer-label">Sources analyzed</span>
+    <div class="sources-footer-tags">
+      <span class="src-tag">App Store</span>
+      <span class="src-tag">Play Store (500)</span>
+      <span class="src-tag">Reddit r/spotify</span>
+      <span class="src-tag">Spotify Community</span>
+      <span class="src-tag">Social Media</span>
+    </div>
+  </div>
+  <button class="rerun-btn" onclick="runAnalysis()">↺ Run again</button>
+</div>
 
 <script>
-// ─── Review Data ─────────────────────────────────────────────────────────────
-const playStoreReviews = [
-  { source: 'Play Store', review: 'Constant popups for premium, can\'t skip without long ads, can\'t play albums in order, and they have even stopped you from playing your "liked" songs.' },
-  { source: 'Play Store', review: 'The last 6 months it\'s gone drastically downhill. The app constantly closes with no crash report, it just stops playing.' },
-  { source: 'Play Store', review: 'A really good app but when one hasn\'t subscribed to premium, he\'s deprived of many choices including song selection.' },
-  { source: 'Play Store', review: 'I play one playlist, and an ad says enjoy the next 30 minutes of uninterrupted listening. Then, halfway through a song, I swap playlist and get another ad.' },
-  { source: 'Play Store', review: 'Discover Weekly and Release Radar playlists are always on point, introducing me to new artists and tracks I love.' },
-  { source: 'Play Store', review: 'Instead of two ads, it\'s three, sometimes even FOUR. Says 30 mins without ads, but it\'s like 5 mins.' },
-  { source: 'Play Store', review: 'You can\'t choose the songs you want to listen to, ads are everywhere, can\'t skip, can\'t make a playlist that\'s not on shuffle.' },
-  { source: 'Play Store', review: 'Phone and desktop don\'t sync reliably, doesn\'t play songs when clicked, plays song when you scroll past.' },
-  { source: 'Play Store', review: 'Free version is almost unusable. 4 ads in a row then it tells me I can enjoy 30 minutes ad free. 2 songs later, 4 more ads.' },
-  { source: 'Play Store', review: 'I love the Spotify wrapped feature and the mixes they make including all my favorite songs.' },
-  { source: 'Play Store', review: 'It gets more and more expensive. Premium advertises audiobooks but only allows so many hours before wanting more money.' },
-  { source: 'Play Store', review: 'The ad saying "listen for 30 minutes of ad free music" then literally plays 1 song before another 2 minute ad set.' },
-  { source: 'Play Store', review: 'Opens to a black screen and no matter if I reset the app or my phone nothing really helps it.' },
-  { source: 'Play Store', review: 'Why not give free users the loop button? We already deal with 6 skips an hour and 2-4 ads after every 2 songs.' },
-  { source: 'Play Store', review: 'When I try to get a song it plays a different song from "things we added" which is just a way to get money.' },
-  { source: 'Play Store', review: 'Forced to use the big widget instead of the smaller one. Too many ads now, an ad after the 1st or 2nd song.' },
-  { source: 'Play Store', review: 'Connectivity is astronomically garbage — I could have 5G service, playing downloaded songs, but Spotify constantly interrupts.' },
-  { source: 'Play Store', review: 'Slow to load and not very responsive. Click to play a different song and it takes 5 seconds to switch, if it does at all.' },
-  { source: 'Play Store', review: 'I wish they would add a "dislike" button to complement the heart. Hiding songs isn\'t the same.' },
-  { source: 'Play Store', review: 'Great streaming app but in Android Auto you cannot see the full title of the song playing.' },
-  { source: 'Play Store', review: 'They\'re forcing AI half-baked into it, forcing videos into podcasts, generally diluting the product with each update.' },
-  { source: 'Play Store', review: 'Every time I try to add a song to a playlist it won\'t add no matter how many times I click.' },
-  { source: 'Play Store', review: 'The free version has 3 long ads after every 2 songs, constant persuasion to get premium, can\'t play songs in desired order.' },
-  { source: 'Play Store', review: 'Why did they remove what\'s new? For me, it was the main reason to use Spotify — tracking new releases by date.' },
-  { source: 'Play Store', review: 'It\'s become unusable with ads. A 70 second unskippable ad first and it won\'t even be the song you chose.' },
-  { source: 'Play Store', review: 'For podcasts it always plays ones I\'ve already listened to. No way to remove locked bonus episodes.' },
-  { source: 'Play Store', review: 'The shuffle algorithm is terrible. My playlist is 1.5 hours long but I keep hearing the same 4 songs.' },
-  { source: 'Play Store', review: 'Spotify recommendations are so boring now, same 10 songs on rotation.' },
-  { source: 'Play Store', review: 'I find more new music on TikTok in one day than on Spotify in a month.' },
-  { source: 'Play Store', review: 'Algorithm is too safe. Never pushes me outside my comfort zone.' },
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const ALL_REVIEWS = [
+  // App Store
+  { s: 'App Store', r: 'Spotify keeps recommending the same songs I already know. Discover Weekly feels stuck. I want something fresh.' },
+  { s: 'App Store', r: 'Every time I open the app I end up playing the same playlist. Recommendations never match my current mood.' },
+  { s: 'App Store', r: 'Algorithm is too safe. Never pushes me outside my comfort zone. Found more music on Instagram Reels than Spotify in 6 months.' },
+  { s: 'App Store', r: 'Used to love Spotify but the recommendations have gotten stale. Same 20 artists because that\'s all it shows me.' },
+  { s: 'App Store', r: 'Discover Weekly used to introduce me to amazing new artists. Now it\'s just songs I already saved 2 years ago.' },
+  // Play Store
+  { s: 'Play Store', r: 'Constant popups for premium, can\'t skip without long ads, can\'t play albums in order, stopped you from playing your liked songs.' },
+  { s: 'Play Store', r: 'The last 6 months it\'s gone drastically downhill. The app constantly closes with no crash report.' },
+  { s: 'Play Store', r: 'When one hasn\'t subscribed to premium, he\'s deprived of many choices including song selection.' },
+  { s: 'Play Store', r: 'An ad says enjoy the next 30 minutes of uninterrupted listening. Then halfway through I get another ad.' },
+  { s: 'Play Store', r: 'Discover Weekly and Release Radar playlists are always on point, introducing me to new artists and tracks I love.' },
+  { s: 'Play Store', r: 'Instead of two ads it\'s three, sometimes even FOUR. Says 30 mins without ads but it\'s like 5 mins.' },
+  { s: 'Play Store', r: 'Can\'t choose the songs you want, ads everywhere, can\'t skip, can\'t make a playlist that\'s not on shuffle.' },
+  { s: 'Play Store', r: 'Phone and desktop don\'t sync reliably, doesn\'t play songs when clicked, plays songs when you scroll past.' },
+  { s: 'Play Store', r: 'Free version is almost unusable. 4 ads in a row then tells me I can enjoy 30 minutes ad free. 2 songs later, 4 more ads.' },
+  { s: 'Play Store', r: 'I love the Spotify wrapped feature and the mixes they make including all my favorite songs.' },
+  { s: 'Play Store', r: 'Gets more expensive. Premium advertises audiobooks but only allows so many hours before wanting more money.' },
+  { s: 'Play Store', r: '"30 minutes of ad free music" then literally plays 1 song before another 2 minute ad set.' },
+  { s: 'Play Store', r: 'Opens to a black screen and no matter if I reset the app or phone nothing helps it.' },
+  { s: 'Play Store', r: 'Why not give free users the loop button? We already deal with 6 skips an hour and 2-4 ads after every 2 songs.' },
+  { s: 'Play Store', r: 'When I try to get a song it plays a different song from "things we added" which is a way to get money.' },
+  { s: 'Play Store', r: 'Forced to use the big widget instead of smaller one. Too many ads, an ad after the 1st or 2nd song.' },
+  { s: 'Play Store', r: 'Connectivity is garbage — I could have 5G service, playing downloaded songs, but Spotify constantly interrupts.' },
+  { s: 'Play Store', r: 'Slow to load. Click to play a different song and it takes 5 seconds to switch, if it does at all.' },
+  { s: 'Play Store', r: 'I wish they would add a "dislike" button to complement the heart. Hiding songs isn\'t the same.' },
+  { s: 'Play Store', r: 'They\'re forcing AI half-baked into the product, forcing videos into podcasts, diluting efficacy with each update.' },
+  { s: 'Play Store', r: 'Every time I try to add a song to a playlist it won\'t add no matter how many times I click.' },
+  { s: 'Play Store', r: '3 long ads after every 2 songs, constant persuasion to get premium, can\'t play songs in desired order.' },
+  { s: 'Play Store', r: 'Why did they remove what\'s new? It was the main reason to use Spotify — tracking new releases by date.' },
+  { s: 'Play Store', r: 'A 70 second unskippable ad first and it won\'t even be the song you chose.' },
+  { s: 'Play Store', r: 'For podcasts it always plays ones I\'ve already listened to. No way to remove locked bonus episodes.' },
+  { s: 'Play Store', r: 'The shuffle algorithm is terrible. My playlist is 1.5 hours long but I keep hearing the same 4 songs.' },
+  { s: 'Play Store', r: 'I find more new music on TikTok in one day than on Spotify in a month.' },
+  // Reddit
+  { s: 'Reddit r/spotify', r: 'Spotify recommendation bubble is real. Once you listen to one genre it keeps feeding you the same thing forever.' },
+  { s: 'Reddit r/spotify', r: 'Discover Weekly used to be amazing. Now it recycles the same 20 artists in different orders.' },
+  { s: 'Reddit r/spotify', r: 'The algorithm punishes you for variety. If I listen to one classical piece my whole feed shifts to classical for weeks.' },
+  { s: 'Reddit r/spotify', r: 'I miss when radio stations would play things I wouldn\'t have chosen myself. Spotify just validates my existing taste.' },
+  { s: 'Reddit r/spotify', r: 'Social features are completely dead. I used to find amazing music through friend activity.' },
+  // Community
+  { s: 'Spotify Community', r: 'The lack of explanation for recommendations kills my trust. Tell me why you picked this song and I am 10x more likely to try it.' },
+  { s: 'Spotify Community', r: 'I wish I could tell Spotify my current activity and mood and get a fresh playlist of songs I\'ve never heard.' },
+  { s: 'Spotify Community', r: 'The repetitive listening loop is real. Familiar music feels safe. I need a compelling reason to try something new.' },
+  { s: 'Spotify Community', r: 'Please fix Discover Weekly. It used to be amazing but now shows the same artists over and over.' },
+  { s: 'Spotify Community', r: 'Why does the algorithm not understand that I listen to different music for different moods? I need context-aware recommendations.' },
+  // Social Media
+  { s: 'Social Media', r: 'spotify just plays the same songs again and again, shuffle is broken, 1.5 hour playlist and same 4 songs every time.' },
+  { s: 'Social Media', r: 'I need new music. Spotify cycles through the same recommendations every week. Algorithm has no idea what I actually want.' },
+  { s: 'Social Media', r: 'Just discovered SongsDNA from Spotify — finally something that helps me find new music!' },
+  { s: 'Social Media', r: 'Social discovery is completely missing from Spotify. I found an app that shows what friends listen to.' },
+  { s: 'Social Media', r: 'spotify recommendations are so boring, same 10 songs on rotation. More new music on TikTok in one day.' },
+  { s: 'Social Media', r: 'after one song ads pop up for a whole minute and after 6 or 7 songs I can\'t even choose songs of my own choice.' },
+  { s: 'Social Media', r: 'i want spotify to recommend me songs based on my current vibe not just what i listened to last week. context matters.' },
 ];
 
-const spotifyCommunityReviews = [
-  { source: 'Spotify Community Forum', review: 'The lack of explanation for recommendations kills my trust. Tell me why you picked this song and I am 10x more likely to try it.' },
-  { source: 'Spotify Community Forum', review: 'I wish I could tell Spotify my current activity and mood and get a fresh playlist of songs I have never heard.' },
-  { source: 'Spotify Community Forum', review: 'The repetitive listening loop is real. Familiar music feels safe. I need a compelling reason to try something new.' },
-  { source: 'Spotify Community Forum', review: 'Please fix Discover Weekly. It used to be amazing but now just shows the same artists over and over in different orders.' },
-  { source: 'Spotify Community Forum', review: 'Why does the algorithm not understand that I listen to different music for different moods? I need context-aware recommendations.' },
-];
-
-const socialMediaReviews = [
-  { source: 'Social Media (Twitter/X)', review: 'spotify just plays the same songs again and again, shuffle is broken, my playlist is 1.5 hours long why am i hearing the same 4 songs.' },
-  { source: 'Social Media (Twitter/X)', review: 'I need new music. Spotify just cycles through the same recommendations every week. The algorithm has no idea what I actually want.' },
-  { source: 'Social Media (Twitter/X)', review: 'Just discovered SongsDNA from Spotify - what a lovely feature for music exploration sessions. Finally something that helps me find new music!' },
-  { source: 'Social Media (Twitter/X)', review: 'I discovered an app that helps find new music by showing what friends listen to. Spotify should do this better - social discovery is completely missing.' },
-  { source: 'Social Media (Twitter/X)', review: 'spotify recommendations are so boring now, same 10 songs on rotation. I find more new music on TikTok in one day than Spotify in a month.' },
-  { source: 'Social Media (Twitter/X)', review: 'after one song ads pop up for a whole minute and after 6 or 7 songs I can\'t even choose to play songs of my own choice.' },
-  { source: 'Social Media (Twitter/X)', review: 'i want spotify to recommend me songs based on my current vibe not just what i listened to last week. context matters so much.' },
-];
-
-const appStoreReviews = [
-  { source: 'App Store', review: 'Spotify keeps recommending the same songs I already know. Discover Weekly feels stuck. I want something fresh.' },
-  { source: 'App Store', review: 'Every time I open the app I end up playing the same playlist. Recommendations never match my current mood.' },
-  { source: 'App Store', review: 'Algorithm is too safe. Never pushes me outside my comfort zone. Found more music on Instagram Reels than Spotify in 6 months.' },
-  { source: 'App Store', review: 'Used to love Spotify but the recommendations have gotten stale. I listen to the same 20 artists because that\'s all it shows me.' },
-  { source: 'App Store', review: 'Discover Weekly used to introduce me to amazing new artists. Now it\'s just songs I already saved 2 years ago.' },
-];
-
-const redditReviews = [
-  { source: 'Reddit r/spotify', review: 'Spotify recommendation bubble is real. Once you listen to one genre it keeps feeding you the same thing forever.' },
-  { source: 'Reddit r/spotify', review: 'Discover Weekly used to be amazing. Now it recycles the same 20 artists in different orders.' },
-  { source: 'Reddit r/spotify', review: 'The algorithm punishes you for variety. If I listen to one classical piece my whole feed shifts to classical for weeks.' },
-  { source: 'Reddit r/spotify', review: 'I miss when radio stations would play things I wouldn\'t have chosen myself. Spotify\'s algorithm just validates my existing taste.' },
-  { source: 'Reddit r/spotify', review: 'Social features are completely dead on Spotify. I used to find amazing music through friend activity.' },
-];
-
-// ─── Research Questions ───────────────────────────────────────────────────────
 const QUESTIONS = [
   { id: 'Q1', text: 'Why do users struggle to discover new music?' },
   { id: 'Q2', text: 'What are the most common frustrations with recommendations?' },
@@ -230,90 +242,65 @@ const QUESTIONS = [
   { id: 'Q6', text: 'What unmet needs emerge consistently across reviews?' },
 ];
 
-// ─── Step Animation ───────────────────────────────────────────────────────────
-let stepInterval;
-function animateSteps() {
-  const steps = ['step1','step2','step3','step4'];
-  let current = 0;
-  steps.forEach(id => document.getElementById(id).classList.remove('active'));
-  stepInterval = setInterval(() => {
-    if (current < steps.length) {
-      document.getElementById(steps[current]).classList.add('active');
-      current++;
-    } else {
-      clearInterval(stepInterval);
-    }
-  }, 2200);
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function formatMd(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^[-•]\s(.+)/gm, '<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, '<ul>$&</ul>');
 }
 
-// ─── Render QA Cards ──────────────────────────────────────────────────────────
+function setProgress(done, total) {
+  document.getElementById('progressBar').style.width = `${Math.round((done / total) * 100)}%`;
+}
+
+// ─── Render QA skeleton cards ─────────────────────────────────────────────────
 function renderQACards() {
-  const container = document.getElementById('qaContainer');
-  container.innerHTML = '';
+  const c = document.getElementById('qaContainer');
+  c.innerHTML = '';
   QUESTIONS.forEach(q => {
-    const card = document.createElement('div');
-    card.className = 'qa-card';
-    card.id = `card-${q.id}`;
-    card.innerHTML = `
-      <div class="qa-question">
-        <span style="background:var(--green-dim);border:1px solid rgba(29,185,84,0.3);border-radius:4px;padding:2px 7px;font-size:11px;">${q.id}</span>
-        ${q.text}
-      </div>
-      <div class="qa-answer streaming-cursor" id="answer-${q.id}"></div>
-    `;
-    container.appendChild(card);
+    c.innerHTML += `
+      <div class="qa-card" id="card-${q.id}">
+        <div class="qa-question">
+          <span class="q-badge">${q.id}</span>${q.text}
+        </div>
+        <div class="qa-answer" id="answer-${q.id}">
+          <div class="skeleton" style="width:90%"></div>
+          <div class="skeleton" style="width:75%"></div>
+          <div class="skeleton" style="width:82%"></div>
+        </div>
+      </div>`;
   });
 }
 
-// ─── Stream one question answer ───────────────────────────────────────────────
-async function streamAnswer(questionText, reviewText, questionId, totalReviews) {
-  const answerEl = document.getElementById(`answer-${questionId}`);
-  answerEl.innerHTML = '';
-  answerEl.classList.add('streaming-cursor');
+// ─── Stream one question via the /api/analyze proxy ───────────────────────────
+async function streamQuestion(q, reviewText) {
+  const card = document.getElementById(`card-${q.id}`);
+  const answerEl = document.getElementById(`answer-${q.id}`);
+  card.classList.add('streaming');
+  answerEl.innerHTML = '<span class="cursor"></span>';
 
-  const prompt = `You are a senior product research analyst. Based on these ${totalReviews} real Spotify user reviews from multiple platforms, answer this specific research question with detailed analysis:
-
-QUESTION: ${questionText}
-
-REVIEWS:
-${reviewText}
-
-Provide a structured answer with:
-- 3-5 specific bullet points backed by evidence from the reviews
-- Bold key themes using **text**
-- Reference specific patterns you see across multiple reviews
-- Be concise but insightful (150-200 words max)
-
-Answer ONLY this question. Do not answer any other questions.`;
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch('/api/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 600,
-      stream: true,
-      messages: [{ role: 'user', content: prompt }]
-    })
+    body: JSON.stringify({ question: q.text, reviews: reviewText, totalReviews: ALL_REVIEWS.length }),
   });
 
-  if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.error?.message || `API error ${response.status}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+    throw new Error(err.error || `HTTP ${res.status}`);
   }
 
-  const reader = response.body.getReader();
+  const reader = res.body.getReader();
   const decoder = new TextDecoder();
-  let buffer = '';
-  let fullText = '';
+  let buf = '', full = '';
 
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop();
-
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split('\n');
+    buf = lines.pop();
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue;
       const data = line.slice(6).trim();
@@ -321,67 +308,72 @@ Answer ONLY this question. Do not answer any other questions.`;
       try {
         const evt = JSON.parse(data);
         if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
-          fullText += evt.delta.text;
-          // Render markdown-ish formatting live
-          const rendered = fullText
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/^[-•]\s(.+)/gm, '<li>$1</li>')
-            .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
-          answerEl.innerHTML = rendered;
+          full += evt.delta.text;
+          answerEl.innerHTML = formatMd(full) + '<span class="cursor"></span>';
         }
       } catch (_) {}
     }
   }
 
-  answerEl.classList.remove('streaming-cursor');
+  answerEl.innerHTML = formatMd(full);
+  card.classList.remove('streaming');
+  card.classList.add('done');
 }
 
-// ─── Main Analysis Runner ─────────────────────────────────────────────────────
+// ─── Main ─────────────────────────────────────────────────────────────────────
 async function runAnalysis() {
-  const btn = document.getElementById('runBtn');
-  const loading = document.getElementById('loadingSection');
-  const results = document.getElementById('resultsSection');
+  const btn       = document.getElementById('runBtn');
+  const loading   = document.getElementById('loadingSection');
+  const results   = document.getElementById('resultsSection');
   const questions = document.getElementById('questionsSection');
-  const meta = document.getElementById('resultsMeta');
+  const meta      = document.getElementById('resultsMeta');
   const errorCard = document.getElementById('errorCard');
 
   btn.disabled = true;
-  btn.innerHTML = '<div style="width:16px;height:16px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px"></div> Analyzing...';
+  btn.innerHTML = '<div style="width:16px;height:16px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px"></div> Analyzing…';
   questions.style.display = 'none';
-  loading.style.display = 'block';
-  results.style.display = 'none';
-  errorCard.innerHTML = '';
-  animateSteps();
+  loading.style.display   = 'block';
+  results.style.display   = 'none';
+  errorCard.innerHTML     = '';
 
+  // Animate loading steps
+  let si = 0;
+  ['step1','step2','step3'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const stepTimer = setInterval(() => {
+    if (si < 3) document.getElementById(`step${++si}`).classList.add('active');
+    else clearInterval(stepTimer);
+  }, 1800);
+
+  const reviewText = ALL_REVIEWS.map((r, i) => `${i+1}. [${r.s}] ${r.r}`).join('\n');
   const startTime = Date.now();
 
   try {
-    const allReviews = [...appStoreReviews, ...playStoreReviews, ...redditReviews, ...spotifyCommunityReviews, ...socialMediaReviews];
-    const sampleReviews = allReviews.slice(0, 60);
-    const reviewText = sampleReviews.map((r, i) => `${i+1}. [${r.source}] ${r.review}`).join('\n');
-
-    // Show results section with skeleton cards
-    clearInterval(stepInterval);
-    ['step1','step2','step3','step4'].forEach(id => document.getElementById(id).classList.add('active'));
+    clearInterval(stepTimer);
+    ['step1','step2','step3'].forEach(id => document.getElementById(id).classList.add('active'));
     loading.style.display = 'none';
     results.style.display = 'block';
     renderQACards();
+    setProgress(0, QUESTIONS.length);
 
-    // Stream each question sequentially
-    for (const q of QUESTIONS) {
-      await streamAnswer(q.text, reviewText, q.id, allReviews.length);
-    }
+    // ── Run ALL 6 questions in PARALLEL ──────────────────────────────────────
+    let done = 0;
+    await Promise.all(
+      QUESTIONS.map(q =>
+        streamQuestion(q, reviewText).then(() => {
+          done++;
+          setProgress(done, QUESTIONS.length);
+        })
+      )
+    );
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-    meta.textContent = `Completed in ${elapsed}s · ${allReviews.length} reviews · 5 sources`;
+    meta.textContent = `Completed in ${elapsed}s · ${ALL_REVIEWS.length} reviews · 5 sources`;
 
   } catch (err) {
-    clearInterval(stepInterval);
+    console.error(err);
     loading.style.display = 'none';
     results.style.display = 'block';
-    if (!document.getElementById('qaContainer').innerHTML) renderQACards();
-    errorCard.innerHTML = `<div class="error-card">⚠ Analysis failed: ${err.message}. Please try again.</div>`;
-    console.error(err);
+    errorCard.innerHTML = `<div class="error-card">⚠ Analysis failed: ${err.message}. Check that ANTHROPIC_API_KEY is set in Vercel environment variables.</div>`;
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M8 5v14l11-7z"/></svg> Run Analysis';
