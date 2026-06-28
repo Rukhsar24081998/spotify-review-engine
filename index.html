@@ -9,12 +9,13 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{--green:#1DB954;--green-dim:rgba(29,185,84,0.12);--black:#0a0a0a;--card:#1a1a1a;--border:#2a2a2a;--text:#f0f0f0;--muted:#888;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif}
     body{background:var(--black);color:var(--text);font-family:var(--font-body);min-height:100vh}
-    .header{border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:12px}
+    .header{border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    @media(max-width:600px){.header{padding:0.875rem 1.25rem}}
     .header-logo{width:32px;height:32px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center}
     .header-logo svg{width:18px;height:18px;fill:#000}
     .header-title{font-family:var(--font-display);font-size:15px;font-weight:700}
     .header-badge{margin-left:auto;font-size:11px;background:var(--green-dim);color:var(--green);border:1px solid rgba(29,185,84,0.3);border-radius:20px;padding:3px 10px;font-weight:500}
-    .hero{max-width:720px;margin:0 auto;padding:4rem 2rem 2rem;text-align:center}
+    .hero{max-width:720px;margin:0 auto;padding:4rem 2rem 2.5rem;text-align:center}
     .hero-eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:0.1em;color:var(--green);font-weight:600;margin-bottom:1rem}
     .hero h1{font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:-0.03em;line-height:1.1;margin-bottom:1rem}
     .hero h1 span{color:var(--green)}
@@ -28,27 +29,73 @@
     .run-btn{display:inline-flex;align-items:center;gap:8px;background:var(--green);color:#000;font-family:var(--font-display);font-size:15px;font-weight:700;padding:14px 32px;border:none;border-radius:50px;cursor:pointer;transition:transform 0.15s,opacity 0.15s}
     .run-btn:hover{opacity:0.88;transform:translateY(-1px)}
     .run-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-    .questions{max-width:720px;margin:0 auto;padding:0 2rem 2rem}
+    .run-btn:focus-visible,.rerun-btn:focus-visible,.export-btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+    .skip-link{position:absolute;left:-9999px;top:0;background:var(--green);color:#000;padding:8px 16px;font-weight:600;z-index:100}
+    .skip-link:focus{left:8px;top:8px}
+    .questions{max-width:720px;margin:0 auto;padding:0 2rem 2.5rem}
     .questions-label{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:12px;font-weight:500}
     .questions-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
     @media(max-width:600px){.questions-grid{grid-template-columns:1fr}}
     .question-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--muted);display:flex;align-items:flex-start;gap:8px}
     .q-num{color:var(--green);font-weight:600;font-size:12px;flex-shrink:0;margin-top:1px}
     .loading{max-width:720px;margin:2rem auto;padding:0 2rem;display:none}
-    .loading-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;text-align:center}
-    .spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem}
+    .loading-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem 2rem 1.75rem}
+    .loading-head{text-align:center;margin-bottom:1.5rem}
+    .loading-head h2{font-family:var(--font-display);font-size:17px;font-weight:700;margin-bottom:0.35rem}
+    .loading-head p{font-size:13px;color:var(--muted);line-height:1.5}
+    .spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .loading-steps{display:flex;flex-direction:column;gap:6px;margin-top:1rem}
-    .loading-step{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;justify-content:center}
-    .step-dot{width:6px;height:6px;border-radius:50%;background:var(--border)}
-    .step-dot.active{background:var(--green)}
+    .loading-steps{display:flex;flex-direction:column;gap:0;max-width:360px;margin:0 auto}
+    .loading-step{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:10px;padding:8px 0;line-height:1.4;transition:color 0.2s}
+    .loading-step.active{color:var(--text)}
+    .loading-step.done{color:var(--text)}
+    .step-icon{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--muted)}
+    .loading-step.active .step-icon{color:var(--green)}
+    .loading-step.done .step-icon{color:var(--green)}
+    .loading-step.ai-step{margin-top:4px;font-weight:500}
+    .loading-step.ai-step.active .step-label{color:var(--green)}
+    .loading-divider{text-align:center;color:var(--muted);font-size:14px;padding:10px 0 6px;line-height:1}
+    .mini-spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block}
     .results{max-width:720px;margin:2rem auto;padding:0 2rem 4rem;display:none}
-    .results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
-    .results-title{font-family:var(--font-display);font-size:18px;font-weight:700}
-    .results-meta{font-size:12px;color:var(--muted)}
-    .analysis-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:12px}
-    .analysis-content{font-size:14px;line-height:1.7;color:#ccc;white-space:pre-wrap}
-    .analysis-content strong{color:var(--text);font-weight:600}
+    .results-header{margin-bottom:1.25rem}
+    .results-title{font-family:var(--font-display);font-size:20px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px}
+    .results-subtitle{font-size:13px;color:var(--muted);line-height:1.5}
+    .exec-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:1.5rem}
+    @media(max-width:900px){.exec-summary{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:600px){.exec-summary{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:380px){.exec-summary{grid-template-columns:1fr}}
+    .exec-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-height:88px}
+    .exec-card-label{font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);font-weight:500;line-height:1.3}
+    .exec-card-value{font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--text);line-height:1.35}
+    .exec-card-value.accent{color:var(--green)}
+    .exec-card-value.small{font-size:12px;font-weight:500;color:#c8c8c8;line-height:1.4}
+    .results-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.25rem}
+    .export-btn{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:13px;font-weight:500;padding:8px 14px;border-radius:20px;cursor:pointer;transition:border-color 0.15s,color 0.15s}
+    .export-btn:hover{border-color:var(--green);color:var(--green)}
+    .export-btn:disabled{opacity:0.4;cursor:not-allowed}
+    .summary-bar{display:none}
+    .result-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:1rem}
+    .result-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.35rem 1.4rem;transition:border-color 0.2s}
+    .result-card:hover{border-color:rgba(29,185,84,0.25)}
+    .result-card-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:0.85rem}
+    .result-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid var(--border)}
+    .result-icon.q1{background:rgba(29,185,84,0.1)}
+    .result-icon.q2{background:rgba(52,152,219,0.12)}
+    .result-icon.q3{background:rgba(155,89,182,0.12)}
+    .result-icon.q4{background:rgba(243,156,18,0.12)}
+    .result-icon.q5{background:rgba(231,76,60,0.1)}
+    .result-icon.q6{background:rgba(29,185,84,0.15)}
+    .result-card-titles{flex:1;min-width:0}
+    .result-section-title{font-family:var(--font-display);font-size:12px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+    .result-q-badge{font-family:var(--font-display);font-size:10px;font-weight:700;color:var(--muted);margin-bottom:2px;display:block}
+    .result-question{font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--text);line-height:1.45;letter-spacing:-0.01em}
+    .result-answer{font-size:14px;line-height:1.75;color:#c8c8c8}
+    .result-answer strong{color:var(--text);font-weight:600}
+    .answer-list{margin:0;padding-left:1.15rem;list-style:none}
+    .answer-list li{position:relative;padding-left:0.15rem;margin-bottom:0.45rem}
+    .answer-list li::before{content:'';position:absolute;left:-1rem;top:0.62em;width:5px;height:5px;border-radius:50%;background:var(--green);opacity:0.7}
+    .answer-para{margin-bottom:0.65rem}
+    .answer-para:last-child{margin-bottom:0}
     .sources-footer{margin-top:1.5rem;padding:1rem 1.5rem;background:var(--green-dim);border:1px solid rgba(29,185,84,0.2);border-radius:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     .sources-footer-label{font-size:12px;color:var(--green);font-weight:600}
     .sources-footer-tags{display:flex;gap:6px;flex-wrap:wrap}
@@ -56,10 +103,20 @@
     .rerun-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--border);color:var(--muted);font-size:13px;padding:8px 16px;border-radius:20px;cursor:pointer;margin-top:1.5rem}
     .rerun-btn:hover{border-color:var(--green);color:var(--green)}
     .error-card{background:rgba(255,60,60,0.08);border:1px solid rgba(255,60,60,0.2);border-radius:10px;padding:1rem 1.5rem;font-size:14px;color:#ff6b6b;margin-bottom:1rem}
+    @media print{
+      .skip-link,.header,.hero,.questions,.loading,.sources-footer,.rerun-btn,.results-actions,.results-subtitle{display:none!important}
+      body{background:#fff;color:#111}
+      .results{display:block!important;margin:0;padding:0;max-width:100%}
+      .results-title{color:#111}
+      .exec-summary{grid-template-columns:repeat(3,1fr)}
+      .exec-card,.result-card{background:#f8f8f8;border-color:#ddd;break-inside:avoid}
+      .result-answer,.exec-card-value.small{color:#333}
+    }
   </style>
 </head>
 <body>
-  <div class="header">
+  <a class="skip-link" href="#resultsSection">Skip to analysis results</a>
+  <div class="header" role="banner">
     <div class="header-logo">
       <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 01-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.622.622 0 01.207.857zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.973-.519.781.781 0 01.519-.972c3.632-1.102 8.147-.568 11.234 1.328a.78.78 0 01.257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 11-.543-1.793c3.521-1.068 9.376-.862 13.066 1.235a.937.937 0 01-.906 1.635z"/></svg>
     </div>
@@ -83,8 +140,8 @@
       <div class="stat"><div class="stat-num">5</div><div class="stat-label">Data sources</div></div>
       <div class="stat"><div class="stat-num">6</div><div class="stat-label">Research questions answered</div></div>
     </div>
-    <button class="run-btn" id="runBtn" onclick="runAnalysis()">
-      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
+    <button class="run-btn" id="runBtn" onclick="runAnalysis()" aria-label="Run review analysis across five data sources">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
       Run Analysis
     </button>
   </div>
@@ -101,29 +158,85 @@
     </div>
   </div>
 
-  <div class="loading" id="loadingSection">
+  <div class="loading" id="loadingSection" role="status" aria-live="polite" aria-busy="true">
     <div class="loading-card">
-      <div class="spinner"></div>
-      <p style="font-size:15px;font-weight:600;margin-bottom:0.5rem;">Analyzing 700+ real user reviews</p>
-      <p style="font-size:13px;color:var(--muted)">Groq AI processing reviews from 5 sources</p>
-      <div class="loading-steps">
-        <div class="loading-step"><div class="step-dot active" id="step1"></div> Fetching App Store reviews (live)</div>
-        <div class="loading-step"><div class="step-dot" id="step2"></div> Loading 500 Play Store reviews</div>
-        <div class="loading-step"><div class="step-dot" id="step3"></div> Fetching Reddit r/spotify posts (live)</div>
-        <div class="loading-step"><div class="step-dot" id="step4"></div> Running Groq AI analysis</div>
+      <div class="loading-head">
+        <div class="spinner" id="loadingSpinner" aria-hidden="true"></div>
+        <h2 id="loadingTitle">Collecting review corpus</h2>
+        <p id="loadingSubtitle">Aggregating feedback from 5 public sources</p>
+      </div>
+      <div class="loading-steps" aria-label="Analysis progress">
+        <div class="loading-step" id="load-appstore">
+          <span class="step-icon" id="icon-appstore" aria-hidden="true">○</span>
+          <span class="step-label">Fetching App Store Reviews</span>
+        </div>
+        <div class="loading-step" id="load-playstore">
+          <span class="step-icon" id="icon-playstore" aria-hidden="true">○</span>
+          <span class="step-label">Loading Google Play Reviews</span>
+        </div>
+        <div class="loading-step" id="load-reddit">
+          <span class="step-icon" id="icon-reddit" aria-hidden="true">○</span>
+          <span class="step-label">Processing Reddit Discussions</span>
+        </div>
+        <div class="loading-step" id="load-community">
+          <span class="step-icon" id="icon-community" aria-hidden="true">○</span>
+          <span class="step-label">Reading Spotify Community Posts</span>
+        </div>
+        <div class="loading-step" id="load-social">
+          <span class="step-icon" id="icon-social" aria-hidden="true">○</span>
+          <span class="step-label">Combining Social Media Sources</span>
+        </div>
+        <div class="loading-step" id="load-combine">
+          <span class="step-icon" id="icon-combine" aria-hidden="true">○</span>
+          <span class="step-label">Combining Research Sources</span>
+        </div>
+        <div class="loading-divider" id="loadingDivider1" style="display:none" aria-hidden="true">↓</div>
+        <div class="loading-step ai-step" id="load-ai" style="display:none">
+          <span class="step-icon" id="icon-ai" aria-hidden="true">○</span>
+          <span class="step-label">Running AI thematic analysis…</span>
+        </div>
+        <div class="loading-divider" id="loadingDivider2" style="display:none" aria-hidden="true">↓</div>
+        <div class="loading-step ai-step" id="load-insights" style="display:none">
+          <span class="step-icon" id="icon-insights" aria-hidden="true">○</span>
+          <span class="step-label">Generating structured product insights…</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="results" id="resultsSection">
+  <div class="results" id="resultsSection" aria-labelledby="resultsTitle">
     <div class="results-header">
-      <span class="results-title">Analysis Results</span>
-      <span class="results-meta" id="resultsMeta"></span>
+      <div class="results-title" id="resultsTitle" tabindex="-1">Analysis Results</div>
+      <p class="results-subtitle">Structured insights across six product research questions</p>
+    </div>
+    <div class="exec-summary" id="execSummary" style="display:none" aria-label="Executive summary">
+      <div class="exec-card">
+        <span class="exec-card-label">Reviews analyzed</span>
+        <span class="exec-card-value accent" id="sumReviews">—</span>
+      </div>
+      <div class="exec-card">
+        <span class="exec-card-label">Data sources</span>
+        <span class="exec-card-value" id="sumSources">5</span>
+      </div>
+      <div class="exec-card">
+        <span class="exec-card-label">AI model</span>
+        <span class="exec-card-value small" id="sumModel">llama-3.3-70b-versatile</span>
+      </div>
+      <div class="exec-card">
+        <span class="exec-card-label">Execution timestamp</span>
+        <span class="exec-card-value small" id="sumTimestamp">—</span>
+      </div>
+      <div class="exec-card">
+        <span class="exec-card-label">Research confidence</span>
+        <span class="exec-card-value accent" id="sumConfidence">—</span>
+      </div>
+    </div>
+    <div class="results-actions" id="resultsActions" style="display:none">
+      <button type="button" class="export-btn" id="exportMdBtn" onclick="exportMarkdown()" aria-label="Export analysis as Markdown file" disabled>↓ Export Markdown</button>
+      <button type="button" class="export-btn" id="exportPdfBtn" onclick="exportPdf()" aria-label="Export analysis as PDF via print" disabled>↓ Export PDF</button>
     </div>
     <div id="errorCard"></div>
-    <div class="analysis-card" id="analysisCardWrap">
-      <div class="analysis-content" id="analysisContent"></div>
-    </div>
+    <div class="result-cards" id="resultCards" role="list" aria-label="Research insight cards"></div>
     <div class="sources-footer">
       <span class="sources-footer-label">Sources analyzed</span>
       <div class="sources-footer-tags">
@@ -134,7 +247,7 @@
         <span class="src-tag">Social Media</span>
       </div>
     </div>
-    <button class="rerun-btn" onclick="runAnalysis()">↺ Run again</button>
+    <button class="rerun-btn" onclick="runAnalysis()" aria-label="Run analysis again">↺ Run again</button>
   </div>
 
 <script>
@@ -299,17 +412,287 @@ var socialReviews = [
 ];
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
-var stepInterval;
+var RESEARCH_SECTIONS = [
+  { icon: '🎵', title: 'Discovery Problems', question: 'Why do users struggle to discover new music?' },
+  { icon: '🤖', title: 'Recommendation Frustrations', question: 'What are the most common frustrations with recommendations?' },
+  { icon: '🎧', title: 'Listening Behaviors', question: 'What listening behaviors are users trying to achieve?' },
+  { icon: '🔁', title: 'Repetitive Listening', question: 'What causes users to repeatedly listen to the same content?' },
+  { icon: '👥', title: 'User Segments', question: 'Which user segments experience different discovery challenges?' },
+  { icon: '💡', title: 'Product Opportunities', question: 'What unmet needs emerge consistently across reviews?' }
+];
 
-function animateSteps() {
-  var steps = ['step1','step2','step3','step4'];
-  var current = 0;
-  stepInterval = setInterval(function() {
-    if (current < steps.length) {
-      document.getElementById(steps[current]).classList.add('active');
-      current++;
+var RESEARCH_QUESTIONS = RESEARCH_SECTIONS.map(function(s) { return s.question; });
+
+var AI_MODEL_LABEL = 'llama-3.3-70b-versatile';
+var LOADING_STEPS = ['appstore', 'playstore', 'reddit', 'community', 'social', 'combine'];
+var lastAnalysisExport = null;
+
+function announceLoading(message) {
+  var title = document.getElementById('loadingTitle');
+  var subtitle = document.getElementById('loadingSubtitle');
+  if (title) title.textContent = message;
+  if (subtitle) subtitle.textContent = 'Please wait while the system processes your request';
+}
+
+function resetLoadingUI() {
+  LOADING_STEPS.forEach(function(key) {
+    var step = document.getElementById('load-' + key);
+    var icon = document.getElementById('icon-' + key);
+    if (step) step.classList.remove('active', 'done');
+    if (icon) icon.innerHTML = '○';
+  });
+  ['ai', 'insights'].forEach(function(key) {
+    var step = document.getElementById('load-' + key);
+    var icon = document.getElementById('icon-' + key);
+    if (step) { step.classList.remove('active', 'done'); step.style.display = 'none'; }
+    if (icon) icon.innerHTML = '○';
+  });
+  var d1 = document.getElementById('loadingDivider1');
+  var d2 = document.getElementById('loadingDivider2');
+  var spinner = document.getElementById('loadingSpinner');
+  var loadingSection = document.getElementById('loadingSection');
+  if (d1) d1.style.display = 'none';
+  if (d2) d2.style.display = 'none';
+  if (spinner) spinner.style.display = 'block';
+  if (loadingSection) loadingSection.setAttribute('aria-busy', 'true');
+  announceLoading('Collecting review corpus');
+}
+
+function setLoadingActive(key) {
+  var step = document.getElementById('load-' + key);
+  var icon = document.getElementById('icon-' + key);
+  if (step) { step.style.display = 'flex'; step.classList.add('active'); }
+  if (icon) icon.innerHTML = '<span class="mini-spinner"></span>';
+}
+
+function setLoadingDone(key) {
+  var step = document.getElementById('load-' + key);
+  var icon = document.getElementById('icon-' + key);
+  if (step) { step.classList.remove('active'); step.classList.add('done'); }
+  if (icon) icon.innerHTML = '✓';
+}
+
+function showAiLoadingPhase() {
+  var d1 = document.getElementById('loadingDivider1');
+  var aiStep = document.getElementById('load-ai');
+  var spinner = document.getElementById('loadingSpinner');
+  if (d1) d1.style.display = 'block';
+  if (aiStep) aiStep.style.display = 'flex';
+  if (spinner) spinner.style.display = 'none';
+  announceLoading('Running AI thematic analysis');
+  setLoadingActive('ai');
+}
+
+function showInsightsPhase() {
+  var d2 = document.getElementById('loadingDivider2');
+  var insightsStep = document.getElementById('load-insights');
+  if (d2) d2.style.display = 'block';
+  if (insightsStep) insightsStep.style.display = 'flex';
+  announceLoading('Generating structured product insights');
+  setLoadingActive('insights');
+}
+
+function computeConfidence(reviewCount) {
+  if (reviewCount >= 500) return 'High';
+  if (reviewCount >= 200) return 'Medium';
+  return 'Moderate';
+}
+
+function formatTimestamp() {
+  return new Date().toLocaleString(undefined, {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
+function formatAnswerHtml(body) {
+  if (!body) return '<p class="answer-para">No structured answer returned for this question.</p>';
+  var lines = body.split('\n');
+  var html = '';
+  var inList = false;
+
+  lines.forEach(function(line) {
+    var trimmed = line.trim();
+    if (!trimmed) return;
+    trimmed = trimmed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    trimmed = trimmed.replace(/^#{1,3}\s*/, '');
+
+    if (/^[-*•]\s+/.test(trimmed)) {
+      if (!inList) { html += '<ul class="answer-list">'; inList = true; }
+      html += '<li>' + trimmed.replace(/^[-*•]\s+/, '') + '</li>';
+    } else {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += '<p class="answer-para">' + trimmed + '</p>';
     }
-  }, 2000);
+  });
+  if (inList) html += '</ul>';
+  return html || '<p class="answer-para">' + body.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') + '</p>';
+}
+
+function parseAnalysisSections(text) {
+  var sections = [];
+  var cleaned = text.trim();
+
+  for (var q = 1; q <= 6; q++) {
+    var startRe = new RegExp('(?:^|\\n)\\s*' + q + '\\.\\s*', 'm');
+    var startMatch = cleaned.match(startRe);
+    if (!startMatch) continue;
+
+    var startIdx = startMatch.index + startMatch[0].length;
+    var endIdx = cleaned.length;
+
+    if (q < 6) {
+      var endRe = new RegExp('(?:^|\\n)\\s*' + (q + 1) + '\\.\\s*', 'm');
+      var slice = cleaned.substring(startIdx);
+      var endMatch = slice.match(endRe);
+      if (endMatch) endIdx = startIdx + endMatch.index;
+    }
+
+    var body = cleaned.substring(startIdx, endIdx).trim();
+    body = body.replace(/^[^\n]+\?\s*\n*/m, '').trim();
+
+    sections.push({
+      num: q,
+      question: RESEARCH_QUESTIONS[q - 1],
+      answer: body
+    });
+  }
+
+  if (sections.length === 0) {
+    var headerParts = cleaned.split(/(?:^|\n)#{1,3}\s+/m);
+    if (headerParts.length > 1) {
+      headerParts.forEach(function(part, idx) {
+        if (!part.trim()) return;
+        var qIdx = Math.min(idx - 1, 5);
+        if (idx === 0) return;
+        sections.push({
+          num: qIdx + 1,
+          question: RESEARCH_QUESTIONS[qIdx],
+          answer: part.trim()
+        });
+      });
+    }
+  }
+
+  if (sections.length === 0) {
+    sections.push({
+      num: 1,
+      question: 'Analysis Summary',
+      answer: cleaned
+    });
+    for (var i = 1; i < 6; i++) {
+      sections.push({
+        num: i + 1,
+        question: RESEARCH_QUESTIONS[i],
+        answer: ''
+      });
+    }
+  }
+
+  while (sections.length < 6) {
+    var n = sections.length + 1;
+    sections.push({ num: n, question: RESEARCH_QUESTIONS[n - 1], answer: '' });
+  }
+
+  return sections.slice(0, 6);
+}
+
+function renderResultCards(text) {
+  var container = document.getElementById('resultCards');
+  var sections = parseAnalysisSections(text);
+  container.innerHTML = sections.map(function(s) {
+    var meta = RESEARCH_SECTIONS[s.num - 1] || RESEARCH_SECTIONS[0];
+    return '<article class="result-card" role="listitem">' +
+      '<div class="result-card-head">' +
+        '<div class="result-icon q' + s.num + '" aria-hidden="true">' + meta.icon + '</div>' +
+        '<div class="result-card-titles">' +
+          '<div class="result-section-title">' + meta.title + '</div>' +
+          '<span class="result-q-badge">Question ' + s.num + '</span>' +
+          '<h3 class="result-question">' + s.question + '</h3>' +
+        '</div>' +
+      '</div>' +
+      '<div class="result-answer">' + formatAnswerHtml(s.answer) + '</div>' +
+    '</article>';
+  }).join('');
+  if (lastAnalysisExport) {
+    lastAnalysisExport.sections = sections;
+    lastAnalysisExport.raw = text;
+  }
+}
+
+function updateExecutiveSummary(reviewCount, elapsed) {
+  var timestamp = formatTimestamp();
+  var confidence = computeConfidence(reviewCount);
+  document.getElementById('sumReviews').textContent = reviewCount + '+';
+  document.getElementById('sumSources').textContent = '5 platforms';
+  document.getElementById('sumModel').textContent = AI_MODEL_LABEL;
+  document.getElementById('sumTimestamp').textContent = timestamp + ' · ' + elapsed + 's';
+  document.getElementById('sumConfidence').textContent = confidence;
+  document.getElementById('execSummary').style.display = 'grid';
+  document.getElementById('resultsActions').style.display = 'flex';
+  document.getElementById('exportMdBtn').disabled = false;
+  document.getElementById('exportPdfBtn').disabled = false;
+  if (lastAnalysisExport) {
+    lastAnalysisExport.reviewCount = reviewCount;
+    lastAnalysisExport.elapsed = elapsed;
+    lastAnalysisExport.timestamp = timestamp;
+    lastAnalysisExport.confidence = confidence;
+  }
+}
+
+function buildMarkdownExport() {
+  if (!lastAnalysisExport || !lastAnalysisExport.sections) return '';
+  var lines = [
+    '# Spotify Review Analysis — Research Insights',
+    '',
+    '## Executive Summary',
+    '',
+    '| Metric | Value |',
+    '|---|---|',
+    '| Reviews analyzed | ' + lastAnalysisExport.reviewCount + '+ |',
+    '| Data sources | 5 platforms |',
+    '| AI model | ' + AI_MODEL_LABEL + ' |',
+    '| Timestamp | ' + lastAnalysisExport.timestamp + ' |',
+    '| Execution time | ' + lastAnalysisExport.elapsed + 's |',
+    '| Research confidence | ' + lastAnalysisExport.confidence + ' |',
+    '',
+    '---',
+    ''
+  ];
+  lastAnalysisExport.sections.forEach(function(s) {
+    var meta = RESEARCH_SECTIONS[s.num - 1];
+    lines.push('## ' + meta.icon + ' ' + meta.title);
+    lines.push('');
+    lines.push('**Q' + s.num + ':** ' + s.question);
+    lines.push('');
+    if (s.answer) {
+      lines.push(s.answer);
+    } else {
+      lines.push('_No structured answer returned._');
+    }
+    lines.push('');
+  });
+  lines.push('---');
+  lines.push('');
+  lines.push('_Generated by Spotify Discovery Review Engine_');
+  return lines.join('\n');
+}
+
+function exportMarkdown() {
+  var md = buildMarkdownExport();
+  if (!md) return;
+  var blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'spotify-review-analysis-' + Date.now() + '.md';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportPdf() {
+  if (!lastAnalysisExport) return;
+  window.print();
 }
 
 async function fetchAppStore() {
@@ -360,18 +743,17 @@ async function fetchReddit() {
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 async function runAnalysis() {
-  var btn       = document.getElementById('runBtn');
-  var loading   = document.getElementById('loadingSection');
-  var results   = document.getElementById('resultsSection');
-  var questions = document.getElementById('questionsSection');
-  var content   = document.getElementById('analysisContent');
-  var meta      = document.getElementById('resultsMeta');
-  var errorCard = document.getElementById('errorCard');
-  var cardWrap  = document.getElementById('analysisCardWrap');
+  var btn            = document.getElementById('runBtn');
+  var loading        = document.getElementById('loadingSection');
+  var results        = document.getElementById('resultsSection');
+  var questions      = document.getElementById('questionsSection');
+  var resultCards    = document.getElementById('resultCards');
+  var errorCard      = document.getElementById('errorCard');
+  var execSummary    = document.getElementById('execSummary');
+  var resultsActions = document.getElementById('resultsActions');
 
-  ['step1','step2','step3','step4'].forEach(function(id) {
-    document.getElementById(id).classList.remove('active');
-  });
+  resetLoadingUI();
+  lastAnalysisExport = null;
 
   btn.disabled = true;
   btn.innerHTML = 'Analyzing…';
@@ -379,17 +761,38 @@ async function runAnalysis() {
   loading.style.display   = 'block';
   results.style.display   = 'none';
   errorCard.innerHTML     = '';
-  content.innerHTML       = '';
-  cardWrap.style.display  = 'block';
+  resultCards.innerHTML   = '';
+  execSummary.style.display = 'none';
+  resultsActions.style.display = 'none';
+  document.getElementById('exportMdBtn').disabled = true;
+  document.getElementById('exportPdfBtn').disabled = true;
 
-  animateSteps();
   var startTime = Date.now();
 
   try {
+    setLoadingActive('appstore');
     var appStoreReviews = await fetchAppStore();
-    var redditReviews   = await fetchReddit();
-    var allReviews      = appStoreReviews.concat(playStoreReviews).concat(redditReviews).concat(communityReviews).concat(socialReviews);
-    var sample          = allReviews.slice(0, 80);
+    setLoadingDone('appstore');
+
+    setLoadingActive('playstore');
+    setLoadingDone('playstore');
+
+    setLoadingActive('reddit');
+    var redditReviews = await fetchReddit();
+    setLoadingDone('reddit');
+
+    setLoadingActive('community');
+    setLoadingDone('community');
+
+    setLoadingActive('social');
+    setLoadingDone('social');
+
+    setLoadingActive('combine');
+    var allReviews = appStoreReviews.concat(playStoreReviews).concat(redditReviews).concat(communityReviews).concat(socialReviews);
+    var sample     = allReviews.slice(0, 80);
+    setLoadingDone('combine');
+
+    showAiLoadingPhase();
 
     // ── Call our own Vercel serverless function (key is safe on the server) ──
     var res = await fetch('/api/analyze', {
@@ -409,40 +812,49 @@ async function runAnalysis() {
 
     var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
-    clearInterval(stepInterval);
-    ['step1','step2','step3','step4'].forEach(function(id) {
-      document.getElementById(id).classList.add('active');
-    });
+    setLoadingDone('ai');
+    showInsightsPhase();
 
-    meta.textContent = 'Completed in ' + elapsed + 's · ' + allReviews.length + ' reviews · 5 sources';
+    lastAnalysisExport = {
+      sections: [],
+      raw: data.result,
+      reviewCount: allReviews.length,
+      elapsed: elapsed,
+      timestamp: formatTimestamp(),
+      confidence: computeConfidence(allReviews.length)
+    };
 
-    var formatted = data.result
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/###\s?(.*)/g, '<strong style="font-size:15px;color:#1DB954;display:block;margin-top:12px">$1</strong>');
+    updateExecutiveSummary(allReviews.length, elapsed);
+    renderResultCards(data.result);
+    setLoadingDone('insights');
 
-    content.innerHTML = formatted;
+    await new Promise(function(resolve) { setTimeout(resolve, 450); });
+
     loading.style.display = 'none';
+    loading.setAttribute('aria-busy', 'false');
     results.style.display = 'block';
+    document.getElementById('resultsTitle').focus();
 
   } catch(err) {
-    clearInterval(stepInterval);
     loading.style.display = 'none';
+    loading.setAttribute('aria-busy', 'false');
     results.style.display = 'block';
-    cardWrap.style.display = 'none';
+    execSummary.style.display = 'none';
+    resultsActions.style.display = 'none';
 
     var msg = err.message || String(err);
 
     if (msg.indexOf('429') !== -1 || msg.toLowerCase().indexOf('rate limit') !== -1) {
-      errorCard.innerHTML = '<div class="error-card">⏱️ Rate limit hit. Wait 30–60 seconds and click Run again.</div>';
+      errorCard.innerHTML = '<div class="error-card" role="alert">⏱️ Rate limit hit. Wait 30–60 seconds and click Run again.</div>';
     } else if (msg.toLowerCase().indexOf('groq_api_key') !== -1 || msg.toLowerCase().indexOf('not set') !== -1) {
-      errorCard.innerHTML = '<div class="error-card">⚙️ Server config error: GROQ_API_KEY is not set in Vercel environment variables. Add it in Vercel → Settings → Environment Variables.</div>';
+      errorCard.innerHTML = '<div class="error-card" role="alert">⚙️ Server config error: GROQ_API_KEY is not set in Vercel environment variables. Add it in Vercel → Settings → Environment Variables.</div>';
     } else {
-      errorCard.innerHTML = '<div class="error-card">❌ Analysis failed: ' + msg + '</div>';
+      errorCard.innerHTML = '<div class="error-card" role="alert">❌ Analysis failed: ' + msg + '</div>';
     }
 
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M8 5v14l11-7z"/></svg> Run Analysis';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg> Run Analysis';
     questions.style.display = 'block';
   }
 }
