@@ -505,7 +505,73 @@ function formatTimestamp() {
   });
 }
 
-function formatAnswerHtml(body) {
+function normalizeHeadingText(text) {
+  var s = (text || '').trim().replace(/\*\*/g, '');
+  s = s.replace(/^#{1,6}\s+/, '');
+  s = s.replace(/^question\s+\d+\s*[:-]?\s*/i, '');
+  s = s.replace(/^q\d+\s*[:-]?\s*/i, '');
+  s = s.replace(/^\d+\.\s+/, '');
+  s = s.replace(/^[-*•]\s+/, '');
+  s = s.replace(/[?.!:]+$/g, '');
+  return s.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function isDuplicateHeading(line, qNum, question) {
+  var trimmed = line.trim();
+  if (!trimmed) return false;
+
+  var plain = trimmed.replace(/\*\*/g, '').trim();
+  var normalizedLine = normalizeHeadingText(plain);
+  var normalizedQuestion = normalizeHeadingText(question);
+
+  if (/^q\s*\d+\s*[:-]?\s*$/i.test(plain)) return true;
+  if (/^question\s+\d+\s*[:-]?\s*$/i.test(plain)) return true;
+
+  if (normalizedLine && normalizedLine === normalizedQuestion) return true;
+
+  if (normalizedLine && normalizedQuestion &&
+      normalizedLine.length <= normalizedQuestion.length + 8 &&
+      (normalizedLine === normalizedQuestion ||
+       normalizedQuestion.indexOf(normalizedLine) === 0 ||
+       normalizedLine.indexOf(normalizedQuestion) === 0)) {
+    return true;
+  }
+
+  if (new RegExp('^question\\s+' + qNum + '\\b', 'i').test(plain)) {
+    var afterQuestion = plain.replace(new RegExp('^question\\s+' + qNum + '\\s*[:-]?\\s*', 'i'), '');
+    if (!afterQuestion.trim() || normalizeHeadingText(afterQuestion) === normalizedQuestion) return true;
+  }
+
+  if (new RegExp('^q' + qNum + '\\b', 'i').test(plain.replace(/\s/g, ''))) {
+    var afterQ = plain.replace(/^q\s*\d+\s*[:-]?\s*/i, '');
+    if (!afterQ.trim() || normalizeHeadingText(afterQ) === normalizedQuestion) return true;
+  }
+
+  var numMatch = plain.match(new RegExp('^' + qNum + '\\.\\s+(.*)$'));
+  if (numMatch && normalizeHeadingText(numMatch[1]) === normalizedQuestion) return true;
+
+  var anyNum = plain.match(/^\d+\.\s+(.*)$/);
+  if (anyNum && normalizeHeadingText(anyNum[1]) === normalizedQuestion) return true;
+
+  if (/^#{1,6}\s/.test(plain) && normalizedLine === normalizedQuestion) return true;
+
+  return false;
+}
+
+function stripDuplicateHeadings(body, qNum, question) {
+  if (!body) return body;
+  var lines = body.split('\n');
+  var i = 0;
+  while (i < lines.length) {
+    if (!lines[i].trim()) { i++; continue; }
+    if (isDuplicateHeading(lines[i], qNum, question)) { i++; continue; }
+    break;
+  }
+  return lines.slice(i).join('\n').trim();
+}
+
+function formatAnswerHtml(body, qNum, question) {
+  body = stripDuplicateHeadings(body, qNum, question);
   if (!body) return '<p class="answer-para">No structured answer returned for this question.</p>';
   var lines = body.split('\n');
   var html = '';
@@ -514,6 +580,7 @@ function formatAnswerHtml(body) {
   lines.forEach(function(line) {
     var trimmed = line.trim();
     if (!trimmed) return;
+    if (isDuplicateHeading(trimmed, qNum, question)) return;
     trimmed = trimmed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     trimmed = trimmed.replace(/^#{1,3}\s*/, '');
 
@@ -549,7 +616,7 @@ function parseAnalysisSections(text) {
     }
 
     var body = cleaned.substring(startIdx, endIdx).trim();
-    body = body.replace(/^[^\n]+\?\s*\n*/m, '').trim();
+    body = stripDuplicateHeadings(body, q, RESEARCH_QUESTIONS[q - 1]);
 
     sections.push({
       num: q,
@@ -568,7 +635,7 @@ function parseAnalysisSections(text) {
         sections.push({
           num: qIdx + 1,
           question: RESEARCH_QUESTIONS[qIdx],
-          answer: part.trim()
+          answer: stripDuplicateHeadings(part.trim(), qIdx + 1, RESEARCH_QUESTIONS[qIdx])
         });
       });
     }
@@ -611,7 +678,7 @@ function renderResultCards(text) {
           '<h3 class="result-question">' + s.question + '</h3>' +
         '</div>' +
       '</div>' +
-      '<div class="result-answer">' + formatAnswerHtml(s.answer) + '</div>' +
+      '<div class="result-answer">' + formatAnswerHtml(s.answer, s.num, s.question) + '</div>' +
     '</article>';
   }).join('');
   if (lastAnalysisExport) {
