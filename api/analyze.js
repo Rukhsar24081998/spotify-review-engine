@@ -33,6 +33,8 @@ export default async function handler(req, res) {
 
 Reviews: ${reviewText}`;
 
+    const AI_MODEL = 'openai/gpt-oss-120b';
+
     // Call Groq API from server side — key is safe here
     const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -41,7 +43,7 @@ Reviews: ${reviewText}`;
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: AI_MODEL,
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 2000,
         temperature: 0.7
@@ -60,7 +62,7 @@ Reviews: ${reviewText}`;
     }
 
     const analysisText = data.choices[0].message.content;
-    return res.status(200).json({ result: analysisText });
+    return res.status(200).json({ result: analysisText, model: AI_MODEL });
 
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Server error. Please try again.' });

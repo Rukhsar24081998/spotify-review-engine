@@ -220,7 +220,7 @@
       </div>
       <div class="exec-card">
         <span class="exec-card-label">AI model</span>
-        <span class="exec-card-value small" id="sumModel">llama-3.3-70b-versatile</span>
+        <span class="exec-card-value small" id="sumModel">—</span>
       </div>
       <div class="exec-card">
         <span class="exec-card-label">Execution timestamp</span>
@@ -423,7 +423,6 @@ var RESEARCH_SECTIONS = [
 
 var RESEARCH_QUESTIONS = RESEARCH_SECTIONS.map(function(s) { return s.question; });
 
-var AI_MODEL_LABEL = 'llama-3.3-70b-versatile';
 var LOADING_STEPS = ['appstore', 'playstore', 'reddit', 'community', 'social', 'combine'];
 var lastAnalysisExport = null;
 
@@ -687,12 +686,12 @@ function renderResultCards(text) {
   }
 }
 
-function updateExecutiveSummary(reviewCount, elapsed) {
+function updateExecutiveSummary(reviewCount, elapsed, model) {
   var timestamp = formatTimestamp();
   var confidence = computeConfidence(reviewCount);
   document.getElementById('sumReviews').textContent = reviewCount + '+';
   document.getElementById('sumSources').textContent = '5 platforms';
-  document.getElementById('sumModel').textContent = AI_MODEL_LABEL;
+  document.getElementById('sumModel').textContent = model || '—';
   document.getElementById('sumTimestamp').textContent = timestamp + ' · ' + elapsed + 's';
   document.getElementById('sumConfidence').textContent = confidence;
   document.getElementById('execSummary').style.display = 'grid';
@@ -704,6 +703,7 @@ function updateExecutiveSummary(reviewCount, elapsed) {
     lastAnalysisExport.elapsed = elapsed;
     lastAnalysisExport.timestamp = timestamp;
     lastAnalysisExport.confidence = confidence;
+    lastAnalysisExport.model = model;
   }
 }
 
@@ -718,7 +718,7 @@ function buildMarkdownExport() {
     '|---|---|',
     '| Reviews analyzed | ' + lastAnalysisExport.reviewCount + '+ |',
     '| Data sources | 5 platforms |',
-    '| AI model | ' + AI_MODEL_LABEL + ' |',
+    '| AI model | ' + (lastAnalysisExport.model || '—') + ' |',
     '| Timestamp | ' + lastAnalysisExport.timestamp + ' |',
     '| Execution time | ' + lastAnalysisExport.elapsed + 's |',
     '| Research confidence | ' + lastAnalysisExport.confidence + ' |',
@@ -885,13 +885,14 @@ async function runAnalysis() {
     lastAnalysisExport = {
       sections: [],
       raw: data.result,
+      model: data.model,
       reviewCount: allReviews.length,
       elapsed: elapsed,
       timestamp: formatTimestamp(),
       confidence: computeConfidence(allReviews.length)
     };
 
-    updateExecutiveSummary(allReviews.length, elapsed);
+    updateExecutiveSummary(allReviews.length, elapsed, data.model);
     renderResultCards(data.result);
     setLoadingDone('insights');
 
