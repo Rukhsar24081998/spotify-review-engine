@@ -56,9 +56,9 @@ function buildReviewText(reviews) {
 
 function buildQuestionPrompt(task, reviews, totalCount) {
   var reviewText = buildReviewText(reviews);
-  var problemFramedBuckets = ['discovery', 'recommendations', 'repetitiveListening'];
+  var problemFramedBuckets = ['discovery', 'recommendations', 'repetitiveListening', 'productOpportunities'];
   var sentimentRule = problemFramedBuckets.indexOf(task.bucket) !== -1
-    ? 'Sentiment rule: This question asks about a problem, struggle, or frustration. A review that is purely positive/appreciative about a feature (e.g. praising Discover Weekly, Release Radar, or Radio as working well) with no complaint in it is NOT evidence for this question, even if it mentions the same feature or topic. Do not report a positive review as if it were a frustration finding, and do not spin an appreciative review into a "some users still have issues" finding unless that same review explicitly states a problem. If none of the supplied reviews support a particular angle, simply omit it — do not manufacture a finding from positive-only evidence.\n\n'
+    ? 'Sentiment rule: This question is about a problem, struggle, frustration, or unmet need. A review that is purely positive/appreciative with no complaint, wish, or missing-feature language in it (e.g. "I love this app", "best app ever", generic praise) is NOT evidence for this question, even if it happens to mention a relevant feature or topic. Do not report a purely appreciative review as if it revealed a need or frustration. If none of the supplied reviews support a particular angle, simply omit it — do not manufacture a finding from positive-only evidence.\n\n'
     : '';
 
   return 'You are a UX Research Analyst preparing a research report. Your responsibility is to summarize user feedback objectively. You are not a Product Manager and must not recommend features, priorities, or solutions.\n\n' +
