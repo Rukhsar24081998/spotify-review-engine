@@ -91,16 +91,26 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     'Reviews: ' + reviewText;
 }
 
-function normalizeFieldLabels(text) {
-  // The model is inconsistent about bolding "Observation:", "Supporting evidence:",
-  // and "Why it matters:" — sometimes *single*, sometimes **double**, sometimes plain.
-  // Strip whatever markers it used and reapply consistent bold every time.
-  return text.replace(
-    /\*{0,2}\s*(Observation|Supporting evidence|Why it matters)\s*\*{0,2}\s*:\s*\*{0,2}/gi,
-    function(match, label) {
-      return '**' + label + ':**';
-    }
-  );
+function normalizeFormatting(text) {
+  // The model is unreliable about spacing/line breaks — sometimes everything
+  // runs together with zero separation ("Finding 1Observation:Users...").
+  // Force consistent structure in code rather than trusting the model's
+  // formatting: a blank line before each "Finding N", a fresh line before
+  // each field label with consistent bold, and a space before the content.
+
+  // Ensure "Finding N" headers always start a new paragraph.
+  text = text.replace(/\s*(Finding\s*\d+)/g, '\n\n$1');
+
+  // Normalize each field label (any mix of asterisks/spacing around it) to
+  // a clean, consistently-bolded label on its own line.
+  var labels = ['Observation', 'Supporting evidence', 'Why it matters'];
+  labels.forEach(function(label) {
+    var re = new RegExp('\\*{0,3}\\s*' + label + '\\s*\\*{0,3}\\s*:\\s*\\*{0,3}\\s*', 'gi');
+    text = text.replace(re, '\n**' + label + ':** ');
+  });
+
+  // Collapse any excess blank lines created by the replacements above.
+  return text.replace(/\n{3,}/g, '\n\n').trim();
 }
 
 async function callGroq(apiKey, prompt, attempt, tokenBudget) {
@@ -159,7 +169,7 @@ async function callGroq(apiKey, prompt, attempt, tokenBudget) {
     throw new Error('Groq returned empty content (likely all reasoning tokens, no answer). Try again or raise max_completion_tokens.');
   }
 
-  return normalizeFieldLabels(content.trim());
+  return normalizeFormatting(content.trim());
 }
 
 async function analyzeQuestion(task, reviews, totalCount, apiKey) {
