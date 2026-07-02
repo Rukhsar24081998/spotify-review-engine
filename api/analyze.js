@@ -1,7 +1,7 @@
 import { retrieveForBucket } from './retrieval.js';
 
 const AI_MODEL = 'openai/gpt-oss-120b';
-const MAX_TOKENS_PER_QUESTION = 1200; // gpt-oss burns tokens on hidden reasoning before the real answer
+const MAX_TOKENS_PER_QUESTION = 600; // kept tight so 6 sequential calls stay under Groq's 8K TPM cap even when they land in the same minute
 
 const RESEARCH_TASKS = [
   {
@@ -78,7 +78,7 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     '- If a pattern appears in only one review, you may report it ONLY if it is especially distinctive, and in that case the Observation MUST start with "(Single-review finding)" so readers know the evidence is weaker.\n' +
     '- Do not invent causes or product ideas.\n' +
     '- Stay grounded in the supplied review evidence.\n\n' +
-    'Output format: Return 4-6 findings. For each finding include:\n' +
+    'Output format: Return 3-5 findings. For each finding include:\n' +
     '- Observation\n' +
     '- Supporting evidence (cite using the exact "Review N" numbers shown below — these are fixed IDs from the full review set, not sequential)\n' +
     '- Why it matters\n\n' +
