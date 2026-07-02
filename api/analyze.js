@@ -76,7 +76,7 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     'Evidence rules:\n' +
     '- Only report findings that are supported by at least two different reviews.\n' +
     '- Every review you cite for a finding must directly state or clearly describe that SAME specific claim — not just be on a related or similar topic. A review about a different aspect of the theme (e.g. wanting fresher content in general) does NOT count as support for a more specific claim (e.g. users going to another app for discovery) even if both are loosely related.\n' +
-    '- Do not reinterpret a neutral or positive review as supporting a negative finding, and do not describe evidence as "implicitly" supporting a claim — if the support is not direct and explicit, it does not count.\n' +
+    '- Do not reinterpret a neutral or positive review as supporting a negative finding. Do not use words like "implies," "implying," "suggests," "indicates," or "underscores" to bridge a review to a claim it does not directly make — if you find yourself reasoning your way from a review to a claim instead of quoting/paraphrasing a direct statement, that review does not count as support.\n' +
     '- Before citing 2 reviews for a finding, check each one individually: does it, on its own, state this exact claim? If only one of them does, treat the finding as single-review.\n' +
     '- If a pattern appears in only one review, you may report it ONLY if it is especially distinctive, and in that case the Observation MUST start with "(Single-review finding)" so readers know the evidence is weaker.\n' +
     '- Do not invent causes or product ideas.\n' +
@@ -135,10 +135,11 @@ async function callGroq(apiKey, prompt, attempt, tokenBudget) {
   // if raw reasoning markers are detected.
   content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
 
-  // If the model ran out of tokens mid-answer, retry once with more headroom
-  // instead of shipping a cut-off finding. Only this one call gets the bump,
-  // so total token usage across the run stays close to baseline.
-  if (finishReason === 'length' && attempt === 1) {
+  // If the model ran out of tokens mid-answer, retry with more headroom
+  // instead of shipping a cut-off finding. Only calls that actually need it
+  // get bumped (up to 2 extra tries), so total token usage across the run
+  // stays close to baseline for the questions that don't need it.
+  if (finishReason === 'length' && attempt < 3) {
     return callGroq(apiKey, prompt, attempt + 1, tokenBudget + 500);
   }
 
