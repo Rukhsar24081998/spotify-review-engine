@@ -8,6 +8,25 @@ const WEIGHTS = {
 
 const RETRIEVAL = { targetMin: 8, targetMax: 10, minimum: 6 };
 
+// Reviews that are purely appreciative (no complaint language) are the
+// opposite of useful evidence for "why do users struggle / what frustrates
+// them / what causes X" style questions. These markers let us tell the two
+// apart so retrieval doesn't hand the LLM a 5-star "I love Discover Weekly"
+// review as evidence for a struggle/frustration finding.
+var POSITIVE_MARKERS = [
+  /\bamazing\b/i, /\bincredible\b/i, /\blove\b/i, /\bloving\b/i, /\bgreat\b/i,
+  /\bawesome\b/i, /\bperfect\b/i, /\bon point\b/i, /\bbeautiful\b/i,
+  /\bappreciat/i, /\bfantastic\b/i, /\bexcellent\b/i, /\bbest app\b/i
+];
+
+var NEGATIVE_MARKERS = [
+  /\bwish\b/i, /\bcan'?t\b/i, /\bdon'?t\b/i, /\bhate\b/i, /\bannoying\b/i,
+  /\bfrustrat/i, /\bissue\b/i, /\bproblem\b/i, /\bstuck\b/i,
+  /\bover and over\b/i, /\bagain and again\b/i, /\bboring\b/i,
+  /\brepetitive\b/i, /\bbroken\b/i, /\bworse\b/i, /\bbad\b/i, /\bsucks?\b/i,
+  /\bruins?\b/i, /\bwhy (does|is|can'?t)\b/i, /\bplease\b/i, /\bneed(s|ed)?\b/i
+];
+
 function normalizeText(text) {
   return (text || '')
     .toLowerCase()
@@ -79,6 +98,7 @@ function buildBucket(config) {
 
   return {
     id: config.id,
+    negativeOnly: !!config.negativeOnly,
     strongPatterns: config.strongKeywords.map(function(term) {
       return new RegExp('\\b' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+') + '\\b', 'i');
     }),
@@ -95,6 +115,7 @@ function buildBucket(config) {
 var BUCKET_CONFIGS = [
   {
     id: 'discovery',
+    negativeOnly: true,
     strongKeywords: ['discover weekly', 'new music', 'find new', 'music discovery', 'hidden gem', 'comfort zone'],
     weakKeywords: ['discover', 'explore', 'fresh', 'stale', 'new artist', 'tiktok', 'instagram', 'social discovery'],
     anchorPhrases: ['discover new music', 'find new artists', 'discover weekly', 'comfort zone', 'same songs'],
@@ -106,6 +127,7 @@ var BUCKET_CONFIGS = [
   },
   {
     id: 'recommendations',
+    negativeOnly: true,
     strongKeywords: ['smart shuffle', 'discover weekly', 'daily mix', 'release radar', 'for you', 'same artist'],
     weakKeywords: ['recommend', 'algorithm', 'suggest', 'personaliz', 'radio', 'shuffle', 'trust', 'transparen', 'recycled'],
     anchorPhrases: ['smart shuffle', 'discover weekly', 'same songs', 'recommendation engine', 'daily mix'],
@@ -128,6 +150,7 @@ var BUCKET_CONFIGS = [
   },
   {
     id: 'repetitiveListening',
+    negativeOnly: true,
     strongKeywords: ['same song', 'same songs', 'over and over', 'again and again', 'same track'],
     weakKeywords: ['repeat', 'loop', 'recycle', 'rotation', 'stuck', 'familiar', 'shuffle', 'playlist'],
     anchorPhrases: ['same songs over and over', 'hearing the same', 'repeat the same', 'playlist is long'],
@@ -214,17 +237,28 @@ function phraseScore(normalizedText, bucket) {
   return best;
 }
 
+function sentimentMultiplier(normalizedText, bucket) {
+  if (!bucket.negativeOnly) return 1;
+  var posHits = countMatches(normalizedText, POSITIVE_MARKERS);
+  var negHits = countMatches(normalizedText, NEGATIVE_MARKERS);
+  // Purely appreciative, zero complaint language: heavily suppress.
+  if (posHits > 0 && negHits === 0) return 0.12;
+  return 1;
+}
+
 function scoreReview(review, bucket) {
   var normalizedText = normalizeText(review.source + ' ' + review.review);
   var reviewTokens = uniqueTokens(tokenize(normalizedText));
 
-  return (
+  var baseScore = (
     keywordScore(normalizedText, bucket) * WEIGHTS.keyword +
     tokenOverlapScore(reviewTokens, bucket) * WEIGHTS.tokenOverlap +
     synonymScore(normalizedText, bucket) * WEIGHTS.synonym +
     phraseScore(normalizedText, bucket) * WEIGHTS.phrase +
     stemScore(reviewTokens, bucket) * WEIGHTS.stem
   );
+
+  return baseScore * sentimentMultiplier(normalizedText, bucket);
 }
 
 function retrieveForBucket(reviews, bucketId) {
