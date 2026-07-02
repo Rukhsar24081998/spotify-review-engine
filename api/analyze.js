@@ -1,4 +1,4 @@
-import { retrieveForBucket } from './retrieval.js';
+import { retrieveForBucket, isPurelyPositive } from './retrieval.js';
 
 const AI_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct'; // 30K TPM on Groq free tier vs 8K for gpt-oss-120b, and not a reasoning model so no hidden token overhead
 const MAX_TOKENS_PER_QUESTION = 1000; // safe headroom now that TPM is 30K, not 8K
@@ -48,6 +48,8 @@ const RESEARCH_TASKS = [
   }
 ];
 
+const PROBLEM_FRAMED_BUCKETS = ['discovery', 'recommendations', 'repetitiveListening', 'productOpportunities'];
+
 function buildReviewText(reviews) {
   return reviews.map(function(review) {
     return 'Review ' + review.globalId + ' [' + review.source + ']: ' + review.review;
@@ -56,7 +58,7 @@ function buildReviewText(reviews) {
 
 function buildQuestionPrompt(task, reviews, totalCount) {
   var reviewText = buildReviewText(reviews);
-  var problemFramedBuckets = ['discovery', 'recommendations', 'repetitiveListening', 'productOpportunities'];
+  var problemFramedBuckets = PROBLEM_FRAMED_BUCKETS;
   var sentimentRule = problemFramedBuckets.indexOf(task.bucket) !== -1
     ? 'Sentiment rule: This question is about a problem, struggle, frustration, or unmet need. A review that is purely positive/appreciative with no complaint, wish, or missing-feature language in it (e.g. "I love this app", "best app ever", generic praise) is NOT evidence for this question, even if it happens to mention a relevant feature or topic. Do not report a purely appreciative review as if it revealed a need or frustration. If none of the supplied reviews support a particular angle, simply omit it — do not manufacture a finding from positive-only evidence.\n\n'
     : '';
@@ -251,10 +253,60 @@ async function callGroq(apiKey, prompt, attempt, tokenBudget) {
   return normalizeFormatting(content.trim());
 }
 
+function filterPositiveOnlyFindings(answerText, reviewsById) {
+  var blocks = answerText.split(/(?=\*\*Finding \d+\*\*)/);
+  var kept = [];
+
+  blocks.forEach(function(block) {
+    if (!block.trim()) return;
+    if (block.indexOf('**Finding') !== 0) {
+      // Leading fragment before the first "**Finding**" header (shouldn't
+      // normally happen post-normalization, but keep it safe rather than
+      // silently dropping content).
+      kept.push(block);
+      return;
+    }
+
+    var citedIds = [];
+    var re = /Review\s+(\d+)/g;
+    var m;
+    while ((m = re.exec(block)) !== null) {
+      citedIds.push(Number(m[1]));
+    }
+
+    if (citedIds.length === 0) {
+      kept.push(block);
+      return;
+    }
+
+    var allPurelyPositive = citedIds.every(function(id) {
+      var reviewText = reviewsById[id];
+      // If we can't resolve the review, don't drop the finding on that basis.
+      return reviewText ? isPurelyPositive(reviewText) : false;
+    });
+
+    if (!allPurelyPositive) kept.push(block);
+  });
+
+  var findingNum = 0;
+  var renumbered = kept.map(function(block) {
+    findingNum++;
+    return block.replace(/^\*\*Finding \d+\*\*/, '**Finding ' + findingNum + '**');
+  });
+
+  return renumbered.join('\n\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 async function analyzeQuestion(task, reviews, totalCount, apiKey) {
   var retrievedReviews = retrieveForBucket(reviews, task.bucket);
   var prompt = buildQuestionPrompt(task, retrievedReviews, totalCount);
   var answer = await callGroq(apiKey, prompt);
+
+  if (PROBLEM_FRAMED_BUCKETS.indexOf(task.bucket) !== -1) {
+    var reviewsById = {};
+    reviews.forEach(function(r) { reviewsById[r.globalId] = r.review; });
+    answer = filterPositiveOnlyFindings(answer, reviewsById);
+  }
 
   return {
     num: task.num,
