@@ -6,7 +6,7 @@ const WEIGHTS = {
   stem: 0.75
 };
 
-const RETRIEVAL = { targetMin: 5, targetMax: 6, minimum: 4 };
+const RETRIEVAL = { targetMin: 8, targetMax: 10, minimum: 6 };
 
 function normalizeText(text) {
   return (text || '')
