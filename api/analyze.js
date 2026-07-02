@@ -1,7 +1,7 @@
 import { retrieveForBucket } from './retrieval.js';
 
-const AI_MODEL = 'openai/gpt-oss-120b';
-const MAX_TOKENS_PER_QUESTION = 600; // kept tight so 6 sequential calls stay under Groq's 8K TPM cap even when they land in the same minute
+const AI_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct'; // 30K TPM on Groq free tier vs 8K for gpt-oss-120b, and not a reasoning model so no hidden token overhead
+const MAX_TOKENS_PER_QUESTION = 1000; // safe headroom now that TPM is 30K, not 8K
 
 const RESEARCH_TASKS = [
   {
@@ -104,8 +104,7 @@ async function callGroq(apiKey, prompt, attempt, tokenBudget) {
       model: AI_MODEL,
       messages: [{ role: 'user', content: prompt }],
       max_completion_tokens: tokenBudget,
-      temperature: 0.7,
-      reasoning_effort: 'low'
+      temperature: 0.7
     })
   });
 
