@@ -173,6 +173,7 @@ var BUCKET_CONFIGS = [
   },
   {
     id: 'productOpportunities',
+    negativeOnly: true,
     strongKeywords: ['dislike button', 'unmet need', 'wish they', 'would like', 'please add'],
     weakKeywords: ['unmet', 'need', 'wish', 'want', 'missing', 'lack', 'should', 'feature', 'control', 'transparen'],
     anchorPhrases: ['wish they would', 'would like', 'unmet need', 'missing feature', 'need a way'],
