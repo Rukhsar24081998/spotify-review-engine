@@ -2,6 +2,7 @@ import { retrieveForBucket } from './retrieval.js';
 
 const AI_MODEL = 'openai/gpt-oss-120b';
 const MAX_TOKENS_PER_QUESTION = 1200; // gpt-oss burns tokens on hidden reasoning before the real answer
+
 const RESEARCH_TASKS = [
   {
     num: 1,
@@ -86,7 +87,9 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     'Reviews: ' + reviewText;
 }
 
-async function callGroq(apiKey, prompt) {
+async function callGroq(apiKey, prompt, attempt) {
+  attempt = attempt || 1;
+
   var groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -102,6 +105,13 @@ async function callGroq(apiKey, prompt) {
     })
   });
 
+  if (groqRes.status === 429 && attempt < 3) {
+    var retryAfterHeader = groqRes.headers.get('retry-after');
+    var waitMs = retryAfterHeader ? (parseFloat(retryAfterHeader) * 1000) : (attempt * 5000);
+    await new Promise(function(resolve) { setTimeout(resolve, waitMs); });
+    return callGroq(apiKey, prompt, attempt + 1);
+  }
+
   var data = await groqRes.json();
 
   if (data.error) {
@@ -116,7 +126,8 @@ async function callGroq(apiKey, prompt) {
 
   // Known Groq bug: gpt-oss models sometimes leak <think>/reasoning text into
   // the content field even though reasoning is supposed to stay in a separate
-  // "reasoning" field. Strip anything wrapped in <think> tags defensively.
+  // "reasoning" field. Strip anything before the first numbered/dashed finding
+  // if raw reasoning markers are detected.
   content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
 
   if (!content) {
@@ -148,9 +159,12 @@ function combineQuestionAnswers(sections) {
 }
 
 async function runQuestionBatch(tasks, reviews, totalCount, apiKey) {
-  return Promise.all(tasks.map(function(task) {
-    return analyzeQuestion(task, reviews, totalCount, apiKey);
-  }));
+  var results = [];
+  for (var i = 0; i < tasks.length; i++) {
+    var result = await analyzeQuestion(tasks[i], reviews, totalCount, apiKey);
+    results.push(result);
+  }
+  return results;
 }
 
 export default async function handler(req, res) {
