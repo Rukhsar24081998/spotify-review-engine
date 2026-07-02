@@ -93,18 +93,29 @@ function buildQuestionPrompt(task, reviews, totalCount) {
 }
 
 function normalizeFormatting(text) {
-  // The model is unreliable about structure — sometimes everything runs
-  // together with zero separation, sometimes headers are "Finding N",
-  // sometimes "Observation N:", sometimes no numbering at all. Rather than
-  // keep patching prompt wording for every variant, normalize field labels
-  // in code and then rebuild "Finding N" headers from scratch, so every
-  // question comes out with identical structure no matter what the model did.
+  var originalForFallback = text;
 
-  // Strip meta-commentary sentences first (before other normalization),
-  // so stray fragments can't glue onto the end of an adjacent finding.
-  text = text.replace(/[^.?!\n]*\b(was not included|meaningful findings|did not (?:meet|provide)|not directly (?:related|support)|outside the scope)\b[^.?!\n]*[.?!]?/gi, '');
+  // 1) Strip meta-commentary line-by-line (safer than substring matching,
+  // which risks eating real content if it spans punctuation oddly).
+  text = text.split('\n').filter(function(line) {
+    var l = line.trim();
+    if (!l) return true;
+    var metaPatterns = [
+      /^Note that/i,
+      /^No additional findings/i,
+      /was not included/i,
+      /outside the scope of (the )?research/i
+    ];
+    return !metaPatterns.some(function(p) { return p.test(l); });
+  }).join('\n');
 
-  // Normalize each field label (any mix of asterisks/spacing/an inline
+  // 2) Strip "Finding N" headers FIRST, before label normalization adds any
+  // ** marks — doing this after caused the Finding-strip regex to greedily
+  // eat the leading ** of the next "**Observation:**" label, corrupting it
+  // and causing the whole response to look empty. Verified fix via test cases.
+  text = text.replace(/\*{0,3}\s*Finding\s*\d+\s*\*{0,3}\s*:?/gi, ' ');
+
+  // 3) Normalize each field label (any mix of asterisks/spacing/an inline
   // finding number like "Observation 1:") to a clean, consistently-bolded
   // label starting on its own line.
   var labels = ['Observation', 'Supporting evidence', 'Why it matters'];
@@ -113,14 +124,8 @@ function normalizeFormatting(text) {
     text = text.replace(re, '\n**' + label + ':** ');
   });
 
-  // Strip any "Finding N" text the model added — headers are rebuilt fresh
-  // below, so leftover ones would otherwise create duplicates.
-  text = text.replace(/\*{0,3}\s*Finding\s*\d+\s*\*{0,3}\s*:?/gi, '');
-
-  // Every finding always starts with an Observation line, so split on that
-  // and give each resulting block a clean, sequential header. Anything
-  // before the first Observation (e.g. "Here are the findings:") is
-  // intro text and gets dropped.
+  // 4) Every finding always starts with an Observation line, so split on
+  // that and give each resulting block a clean, sequential header.
   var parts = text.split(/(?=\*\*Observation:\*\*)/);
   var findingNum = 0;
   var rebuilt = parts.map(function(part) {
@@ -129,16 +134,19 @@ function normalizeFormatting(text) {
     findingNum++;
     return '**Finding ' + findingNum + '**\n\n' + part;
   });
-  text = rebuilt.filter(Boolean).join('\n\n');
 
-  // Collapse any excess blank lines created by the replacements above.
-  text = text.replace(/\n{3,}/g, '\n\n').trim();
+  var result;
+  if (findingNum === 0) {
+    // Safety net: if the model used a format we don't recognize, NEVER
+    // discard its content — fall back to the lightly-normalized text, or
+    // the fully original text if even that came out empty.
+    result = text.trim();
+    if (!result) result = originalForFallback.trim();
+  } else {
+    result = rebuilt.filter(Boolean).join('\n\n');
+  }
 
-  // Safety net: strip common meta-commentary asides in case the model
-  // ignores the prompt instruction not to narrate its own process.
-  text = text.replace(/^(Note that|No additional findings).*$/gim, '');
-
-  return text.replace(/\n{3,}/g, '\n\n').trim();
+  return result.replace(/[ \t]{2,}/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 async function callGroq(apiKey, prompt, attempt, tokenBudget) {
