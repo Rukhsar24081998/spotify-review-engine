@@ -86,6 +86,7 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     '- Supporting evidence (cite using the exact "Review N" numbers shown below — these are fixed IDs from the full review set, not sequential. For EVERY review number you cite, include a short quote or close paraphrase, under 12 words, of what that specific review says — never list a bare "Review N" with no quote or paraphrase attached.)\n' +
     '- Why it matters\n\n' +
     'Do not include conclusions or recommendations.\n\n' +
+    'Do not add any commentary about your own process — no notes explaining which reviews you excluded and why, no remarks like "no additional findings were included," no mention of finding counts falling short of the target. Just output the findings themselves and nothing else.\n\n' +
     'Final check before you answer: for each finding, count how many DIFFERENT review numbers you cited. If that count is 1, the Observation MUST begin with "(Single-review finding)". If you wrote a finding with only one review number and forgot this label, add it now before responding.\n\n' +
     'Corpus size: ' + totalCount + ' total reviews collected. ' + reviews.length + ' relevant reviews supplied below.\n' +
     'Reviews: ' + reviewText;
@@ -98,8 +99,10 @@ function normalizeFormatting(text) {
   // formatting: a blank line before each "Finding N", a fresh line before
   // each field label with consistent bold, and a space before the content.
 
-  // Ensure "Finding N" headers always start a new paragraph.
-  text = text.replace(/\s*(Finding\s*\d+)/g, '\n\n$1');
+  // Ensure "Finding N" headers always start a new paragraph, and strip any
+  // asterisks the model wrapped around the header (not just whitespace) so
+  // no orphaned ** marks are left floating on their own line.
+  text = text.replace(/\*{0,3}\s*(Finding\s*\d+)\s*\*{0,3}/g, '\n\n$1');
 
   // Normalize each field label (any mix of asterisks/spacing around it) to
   // a clean, consistently-bolded label on its own line.
@@ -110,6 +113,12 @@ function normalizeFormatting(text) {
   });
 
   // Collapse any excess blank lines created by the replacements above.
+  text = text.replace(/\n{3,}/g, '\n\n').trim();
+
+  // Safety net: strip common meta-commentary asides in case the model
+  // ignores the prompt instruction not to narrate its own process.
+  text = text.replace(/^(Note that|No additional findings|Finding\s*\d+\s+was not included).*$/gim, '');
+
   return text.replace(/\n{3,}/g, '\n\n').trim();
 }
 
