@@ -49,8 +49,8 @@ const RESEARCH_TASKS = [
 ];
 
 function buildReviewText(reviews) {
-  return reviews.map(function(review, index) {
-    return (index + 1) + '. [' + review.source + '] ' + review.review;
+  return reviews.map(function(review) {
+    return 'Review ' + review.globalId + ' [' + review.source + ']: ' + review.review;
   }).join(' | ');
 }
 
@@ -75,12 +75,12 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     'Ignore: ' + task.ignore + '\n\n' +
     'Evidence rules:\n' +
     '- Only report findings that are supported by at least two different reviews.\n' +
-    '- If a pattern appears in only one review, mention it only if it is especially distinctive.\n' +
+    '- If a pattern appears in only one review, you may report it ONLY if it is especially distinctive, and in that case the Observation MUST start with "(Single-review finding)" so readers know the evidence is weaker.\n' +
     '- Do not invent causes or product ideas.\n' +
     '- Stay grounded in the supplied review evidence.\n\n' +
     'Output format: Return 4-6 findings. For each finding include:\n' +
     '- Observation\n' +
-    '- Supporting evidence (review IDs)\n' +
+    '- Supporting evidence (cite using the exact "Review N" numbers shown below — these are fixed IDs from the full review set, not sequential)\n' +
     '- Why it matters\n\n' +
     'Do not include conclusions or recommendations.\n\n' +
     'Corpus size: ' + totalCount + ' total reviews collected. ' + reviews.length + ' relevant reviews supplied below.\n' +
@@ -186,10 +186,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid request: reviews array is required.' });
     }
 
+    var indexedReviews = reviews.map(function(review, index) {
+      return { source: review.source, review: review.review, globalId: index + 1 };
+    });
+
     var batchOne = RESEARCH_TASKS.slice(0, 3);
     var batchTwo = RESEARCH_TASKS.slice(3);
-    var firstBatch = await runQuestionBatch(batchOne, reviews, totalCount, GROQ_API_KEY);
-    var secondBatch = await runQuestionBatch(batchTwo, reviews, totalCount, GROQ_API_KEY);
+    var firstBatch = await runQuestionBatch(batchOne, indexedReviews, totalCount, GROQ_API_KEY);
+    var secondBatch = await runQuestionBatch(batchTwo, indexedReviews, totalCount, GROQ_API_KEY);
     var analysisText = combineQuestionAnswers(firstBatch.concat(secondBatch));
 
     return res.status(200).json({ result: analysisText, model: AI_MODEL });
