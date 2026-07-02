@@ -91,6 +91,18 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     'Reviews: ' + reviewText;
 }
 
+function normalizeFieldLabels(text) {
+  // The model is inconsistent about bolding "Observation:", "Supporting evidence:",
+  // and "Why it matters:" — sometimes *single*, sometimes **double**, sometimes plain.
+  // Strip whatever markers it used and reapply consistent bold every time.
+  return text.replace(
+    /\*{0,2}\s*(Observation|Supporting evidence|Why it matters)\s*\*{0,2}\s*:\s*\*{0,2}/gi,
+    function(match, label) {
+      return '**' + label + ':**';
+    }
+  );
+}
+
 async function callGroq(apiKey, prompt, attempt, tokenBudget) {
   attempt = attempt || 1;
   tokenBudget = tokenBudget || MAX_TOKENS_PER_QUESTION;
@@ -147,7 +159,7 @@ async function callGroq(apiKey, prompt, attempt, tokenBudget) {
     throw new Error('Groq returned empty content (likely all reasoning tokens, no answer). Try again or raise max_completion_tokens.');
   }
 
-  return content.trim();
+  return normalizeFieldLabels(content.trim());
 }
 
 async function analyzeQuestion(task, reviews, totalCount, apiKey) {
