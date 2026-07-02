@@ -83,6 +83,8 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     '- Every review you cite for a finding must directly state or clearly describe that SAME specific claim — not just be on a related or similar topic. A review about a different aspect of the theme (e.g. wanting fresher content in general) does NOT count as support for a more specific claim (e.g. users going to another app for discovery) even if both are loosely related.\n' +
     '- Do not reinterpret a neutral or positive review as supporting a negative finding. Do not use words like "implies," "implying," "suggests," "indicates," or "underscores" to bridge a review to a claim it does not directly make — if you find yourself reasoning your way from a review to a claim instead of quoting/paraphrasing a direct statement, that review does not count as support.\n' +
     '- Before citing 2 reviews for a finding, check each one individually: does it, on its own, state this exact claim? If only one of them does, treat the finding as single-review.\n' +
+    '- This evidence-checking is INTERNAL reasoning only. NEVER write it into your answer. Do not write sentences like "Review N does not directly support..." or "however Review N supports..." — if a candidate review fails the check, silently drop it and cite only the reviews that pass. The reader must never see your evaluation process, only your conclusions.\n' +
+    '- Each finding has EXACTLY ONE "Supporting evidence" field. Never write "Supporting evidence" twice within the same finding — gather every citation for that finding into a single field, in one place.\n' +
     '- If a pattern appears in only one review, you may report it ONLY if it is especially distinctive, and in that case the Observation MUST start with "(Single-review finding)" so readers know the evidence is weaker.\n' +
     '- Do not invent causes or product ideas.\n' +
     '- Stay grounded in the supplied review evidence.\n\n' +
@@ -91,7 +93,7 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     '- Supporting evidence (cite using the exact "Review N" numbers shown below — these are fixed IDs from the full review set, not sequential. For EVERY review number you cite, include a short quote or close paraphrase, under 12 words, of what that specific review says — never list a bare "Review N" with no quote or paraphrase attached.)\n' +
     '- Why it matters\n\n' +
     'Do not include conclusions or recommendations.\n\n' +
-    'Do not add any commentary about your own process — no notes explaining which reviews you excluded and why, no remarks like "no additional findings were included," no mention of finding counts falling short of the target. Just output the findings themselves and nothing else.\n\n' +
+    'Do not add any commentary about your own process — no notes explaining which reviews you excluded and why, no remarks like "no additional findings were included," no mention of finding counts falling short of the target, no phrases like "only N meaningful findings were found," no trailing sentence explaining why the list stops early. If you have fewer than 5 findings, just stop after your last finding — write nothing else. Just output the findings themselves and nothing else.\n\n' +
     'Final check before you answer: for each finding, count how many DIFFERENT review numbers you cited. If that count is 1, the Observation MUST begin with "(Single-review finding)". If you wrote a finding with only one review number and forgot this label, add it now before responding.\n\n' +
     'Corpus size: ' + totalCount + ' total reviews collected. ' + reviews.length + ' relevant reviews supplied below.\n' +
     'Reviews: ' + reviewText;
@@ -109,7 +111,12 @@ function normalizeFormatting(text) {
       /^Note that/i,
       /^No additional findings/i,
       /was not included/i,
-      /outside the scope of (the )?research/i
+      /outside the scope of (the )?research/i,
+      /^No\b.*\bincluded\b/i,
+      /\bmeaningful findings?\b/i,
+      /\bfindings? (were|was) (found|included)\b/i,
+      /^only \d+/i,
+      /^\d+\.\s*$/  // stray bare numbering like "2." left over from a numbered list
     ];
     return !metaPatterns.some(function(p) { return p.test(l); });
   }).join('\n');
@@ -148,6 +155,26 @@ function normalizeFormatting(text) {
     part = part.trim();
     if (part.indexOf('**Observation:**') !== 0) return '';
     findingNum++;
+
+    // Safety net: if the model emitted "Supporting evidence" twice in one
+    // finding (usually because it narrated a rejected review first), merge
+    // everything after the 2nd+ occurrence into the first field instead of
+    // leaving a duplicate label floating mid-finding.
+    var evidenceLabel = '**Supporting evidence:**';
+    var firstIdx = part.indexOf(evidenceLabel);
+    if (firstIdx !== -1) {
+      var lastIdx = part.lastIndexOf(evidenceLabel);
+      if (lastIdx !== firstIdx) {
+        part = part.slice(0, lastIdx) + part.slice(lastIdx + evidenceLabel.length);
+      }
+    }
+
+    // Safety net: strip visible reasoning clauses that narrate the
+    // evidence-checking process instead of just stating the conclusion
+    // (e.g. "Review 24 does not directly support..., however Review 8...").
+    part = part.replace(/[^.]*\b(does not directly support|does not support|is not directly supported)\b[^.]*\.\s*/gi, '');
+    part = part.replace(/\bhowever,?\s+/gi, '');
+
     return '**Finding ' + findingNum + '**\n\n' + part;
   });
 
