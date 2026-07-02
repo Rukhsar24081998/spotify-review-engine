@@ -78,7 +78,7 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     '- If a pattern appears in only one review, you may report it ONLY if it is especially distinctive, and in that case the Observation MUST start with "(Single-review finding)" so readers know the evidence is weaker.\n' +
     '- Do not invent causes or product ideas.\n' +
     '- Stay grounded in the supplied review evidence.\n\n' +
-    'Output format: Return 3-5 findings. For each finding include:\n' +
+    'Output format: Return 3-5 findings. Keep each field to 1-2 sentences — be concise, not exhaustive. For each finding include:\n' +
     '- Observation\n' +
     '- Supporting evidence (cite using the exact "Review N" numbers shown below — these are fixed IDs from the full review set, not sequential)\n' +
     '- Why it matters\n\n' +
@@ -87,8 +87,9 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     'Reviews: ' + reviewText;
 }
 
-async function callGroq(apiKey, prompt, attempt) {
+async function callGroq(apiKey, prompt, attempt, tokenBudget) {
   attempt = attempt || 1;
+  tokenBudget = tokenBudget || MAX_TOKENS_PER_QUESTION;
 
   var groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -99,7 +100,7 @@ async function callGroq(apiKey, prompt, attempt) {
     body: JSON.stringify({
       model: AI_MODEL,
       messages: [{ role: 'user', content: prompt }],
-      max_completion_tokens: MAX_TOKENS_PER_QUESTION,
+      max_completion_tokens: tokenBudget,
       temperature: 0.7,
       reasoning_effort: 'low'
     })
@@ -109,7 +110,7 @@ async function callGroq(apiKey, prompt, attempt) {
     var retryAfterHeader = groqRes.headers.get('retry-after');
     var waitMs = retryAfterHeader ? (parseFloat(retryAfterHeader) * 1000) : (attempt * 5000);
     await new Promise(function(resolve) { setTimeout(resolve, waitMs); });
-    return callGroq(apiKey, prompt, attempt + 1);
+    return callGroq(apiKey, prompt, attempt + 1, tokenBudget);
   }
 
   var data = await groqRes.json();
@@ -122,6 +123,7 @@ async function callGroq(apiKey, prompt, attempt) {
     throw new Error('Unexpected response from Groq API.');
   }
 
+  var finishReason = data.choices[0].finish_reason;
   var content = data.choices[0].message.content || '';
 
   // Known Groq bug: gpt-oss models sometimes leak <think>/reasoning text into
@@ -129,6 +131,13 @@ async function callGroq(apiKey, prompt, attempt) {
   // "reasoning" field. Strip anything before the first numbered/dashed finding
   // if raw reasoning markers are detected.
   content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
+  // If the model ran out of tokens mid-answer, retry once with more headroom
+  // instead of shipping a cut-off finding. Only this one call gets the bump,
+  // so total token usage across the run stays close to baseline.
+  if (finishReason === 'length' && attempt === 1) {
+    return callGroq(apiKey, prompt, attempt + 1, tokenBudget + 500);
+  }
 
   if (!content) {
     throw new Error('Groq returned empty content (likely all reasoning tokens, no answer). Try again or raise max_completion_tokens.');
