@@ -238,12 +238,17 @@ function phraseScore(normalizedText, bucket) {
   return best;
 }
 
+function isPurelyPositive(text) {
+  var normalized = normalizeText(text);
+  var posHits = countMatches(normalized, POSITIVE_MARKERS);
+  var negHits = countMatches(normalized, NEGATIVE_MARKERS);
+  return posHits > 0 && negHits === 0;
+}
+
 function sentimentMultiplier(normalizedText, bucket) {
   if (!bucket.negativeOnly) return 1;
-  var posHits = countMatches(normalizedText, POSITIVE_MARKERS);
-  var negHits = countMatches(normalizedText, NEGATIVE_MARKERS);
   // Purely appreciative, zero complaint language: heavily suppress.
-  if (posHits > 0 && negHits === 0) return 0.12;
+  if (isPurelyPositive(normalizedText)) return 0.12;
   return 1;
 }
 
@@ -300,4 +305,4 @@ function retrieveForBucket(reviews, bucketId) {
   return selected.slice(0, RETRIEVAL.targetMax).map(function(item) { return item.review; });
 }
 
-export { BUCKETS, RETRIEVAL, retrieveForBucket, scoreReview };
+export { BUCKETS, RETRIEVAL, retrieveForBucket, scoreReview, isPurelyPositive };
