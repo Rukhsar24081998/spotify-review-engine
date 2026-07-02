@@ -75,6 +75,9 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     'Ignore: ' + task.ignore + '\n\n' +
     'Evidence rules:\n' +
     '- Only report findings that are supported by at least two different reviews.\n' +
+    '- Every review you cite for a finding must directly state or clearly describe that SAME specific claim — not just be on a related or similar topic. A review about a different aspect of the theme (e.g. wanting fresher content in general) does NOT count as support for a more specific claim (e.g. users going to another app for discovery) even if both are loosely related.\n' +
+    '- Do not reinterpret a neutral or positive review as supporting a negative finding, and do not describe evidence as "implicitly" supporting a claim — if the support is not direct and explicit, it does not count.\n' +
+    '- Before citing 2 reviews for a finding, check each one individually: does it, on its own, state this exact claim? If only one of them does, treat the finding as single-review.\n' +
     '- If a pattern appears in only one review, you may report it ONLY if it is especially distinctive, and in that case the Observation MUST start with "(Single-review finding)" so readers know the evidence is weaker.\n' +
     '- Do not invent causes or product ideas.\n' +
     '- Stay grounded in the supplied review evidence.\n\n' +
