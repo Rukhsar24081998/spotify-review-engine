@@ -1,8 +1,7 @@
 import { retrieveForBucket } from './retrieval.js';
 
 const AI_MODEL = 'openai/gpt-oss-120b';
-const MAX_TOKENS_PER_QUESTION = 512;
-
+const MAX_TOKENS_PER_QUESTION = 1200; // gpt-oss burns tokens on hidden reasoning before the real answer
 const RESEARCH_TASKS = [
   {
     num: 1,
@@ -97,8 +96,9 @@ async function callGroq(apiKey, prompt) {
     body: JSON.stringify({
       model: AI_MODEL,
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: MAX_TOKENS_PER_QUESTION,
-      temperature: 0.7
+      max_completion_tokens: MAX_TOKENS_PER_QUESTION,
+      temperature: 0.7,
+      reasoning_effort: 'low'
     })
   });
 
@@ -112,7 +112,18 @@ async function callGroq(apiKey, prompt) {
     throw new Error('Unexpected response from Groq API.');
   }
 
-  return data.choices[0].message.content.trim();
+  var content = data.choices[0].message.content || '';
+
+  // Known Groq bug: gpt-oss models sometimes leak <think>/reasoning text into
+  // the content field even though reasoning is supposed to stay in a separate
+  // "reasoning" field. Strip anything wrapped in <think> tags defensively.
+  content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
+  if (!content) {
+    throw new Error('Groq returned empty content (likely all reasoning tokens, no answer). Try again or raise max_completion_tokens.');
+  }
+
+  return content.trim();
 }
 
 async function analyzeQuestion(task, reviews, totalCount, apiKey) {
