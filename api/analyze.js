@@ -56,6 +56,10 @@ function buildReviewText(reviews) {
 
 function buildQuestionPrompt(task, reviews, totalCount) {
   var reviewText = buildReviewText(reviews);
+  var problemFramedBuckets = ['discovery', 'recommendations', 'repetitiveListening'];
+  var sentimentRule = problemFramedBuckets.indexOf(task.bucket) !== -1
+    ? 'Sentiment rule: This question asks about a problem, struggle, or frustration. A review that is purely positive/appreciative about a feature (e.g. praising Discover Weekly, Release Radar, or Radio as working well) with no complaint in it is NOT evidence for this question, even if it mentions the same feature or topic. Do not report a positive review as if it were a frustration finding, and do not spin an appreciative review into a "some users still have issues" finding unless that same review explicitly states a problem. If none of the supplied reviews support a particular angle, simply omit it — do not manufacture a finding from positive-only evidence.\n\n'
+    : '';
 
   return 'You are a UX Research Analyst preparing a research report. Your responsibility is to summarize user feedback objectively. You are not a Product Manager and must not recommend features, priorities, or solutions.\n\n' +
     'RESEARCH-ONLY MODE\n\n' +
@@ -73,6 +77,7 @@ function buildQuestionPrompt(task, reviews, totalCount) {
     'Question: ' + task.question + '\n\n' +
     'Focus on: ' + task.focus + '\n' +
     'Ignore: ' + task.ignore + '\n\n' +
+    sentimentRule +
     'Evidence rules:\n' +
     '- Only report findings that are supported by at least two different reviews.\n' +
     '- Every review you cite for a finding must directly state or clearly describe that SAME specific claim — not just be on a related or similar topic. A review about a different aspect of the theme (e.g. wanting fresher content in general) does NOT count as support for a more specific claim (e.g. users going to another app for discovery) even if both are loosely related.\n' +
@@ -123,6 +128,17 @@ function normalizeFormatting(text) {
     var re = new RegExp('\\*{0,3}\\s*' + label + '\\s*\\d*\\s*\\*{0,3}\\s*:\\s*\\*{0,3}\\s*', 'gi');
     text = text.replace(re, '\n**' + label + ':** ');
   });
+
+  // 3.5) The model is instructed to put "(Single-review finding)" inline at
+  // the start of the Observation text, but it sometimes emits the tag on
+  // its own line just before the Observation instead. Left alone, that
+  // stray line gets trapped at the tail of the PREVIOUS finding's block
+  // once we split on "**Observation:**" below (since the split point is
+  // *before* the marker, not before the tag). Splice it inside instead.
+  text = text.replace(
+    /\(\s*single-review finding\s*\)\s*\n+\s*(\*\*Observation:\*\*\s*)/gi,
+    '$1(Single-review finding) '
+  );
 
   // 4) Every finding always starts with an Observation line, so split on
   // that and give each resulting block a clean, sequential header.
