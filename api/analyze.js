@@ -1,69 +1,173 @@
+import { retrieveForBucket } from './retrieval.js';
+
+const AI_MODEL = 'openai/gpt-oss-120b';
+const MAX_TOKENS_PER_QUESTION = 512;
+
+const RESEARCH_TASKS = [
+  {
+    num: 1,
+    bucket: 'discovery',
+    question: 'Why do users struggle to discover new music?',
+    focus: 'Stale recommendations, difficulty finding new artists, algorithm safe-zones, and weak exploration loops.',
+    ignore: 'Product ideas, unrelated app bugs, pricing, ads, and other research themes.'
+  },
+  {
+    num: 2,
+    bucket: 'recommendations',
+    question: 'What are the most common frustrations with recommendations?',
+    focus: 'Algorithm repetition, personalization gaps, shuffle/radio issues, and lack of recommendation transparency.',
+    ignore: 'Product ideas, unrelated crashes, billing, and other research themes.'
+  },
+  {
+    num: 3,
+    bucket: 'listeningBehaviour',
+    question: 'What listening behaviors are users trying to achieve?',
+    focus: 'Mood-based listening, playlist control, queue behavior, offline use, and contextual listening sessions.',
+    ignore: 'Product ideas, unrelated technical failures, and other research themes.'
+  },
+  {
+    num: 4,
+    bucket: 'repetitiveListening',
+    question: 'What causes users to repeatedly listen to the same content?',
+    focus: 'Broken shuffle, repetition loops, familiar-music fallback, and playlist recycling.',
+    ignore: 'Product ideas, speculative psychology, and other research themes.'
+  },
+  {
+    num: 5,
+    bucket: 'userSegments',
+    question: 'Which user segments experience different discovery challenges?',
+    focus: 'Free vs premium users, mobile vs desktop, and other segment-specific discovery constraints.',
+    ignore: 'Product ideas, generic complaints unrelated to segment differences, and other research themes.'
+  },
+  {
+    num: 6,
+    bucket: 'productOpportunities',
+    question: 'What unmet needs emerge consistently across reviews?',
+    focus: 'Repeated user needs, missing controls, transparency gaps, and discovery pain points expressed as needs.',
+    ignore: 'Invented solutions, single-review feature requests unless especially distinctive, and other research themes.'
+  }
+];
+
+function buildReviewText(reviews) {
+  return reviews.map(function(review, index) {
+    return (index + 1) + '. [' + review.source + '] ' + review.review;
+  }).join(' | ');
+}
+
+function buildQuestionPrompt(task, reviews, totalCount) {
+  var reviewText = buildReviewText(reviews);
+
+  return 'You are a UX Research Analyst preparing a research report. Your responsibility is to summarize user feedback objectively. You are not a Product Manager and must not recommend features, priorities, or solutions.\n\n' +
+    'RESEARCH-ONLY MODE\n\n' +
+    '- Report only observed user behaviors and recurring patterns.\n' +
+    '- Do not recommend features.\n' +
+    '- Do not propose solutions.\n' +
+    '- Do not prioritize improvements.\n' +
+    '- Do not write "Spotify should..."\n' +
+    '- Do not write "A good solution would be..."\n' +
+    '- If users request a feature, report it as user feedback, not as your recommendation.\n\n' +
+    'Correct:\n' +
+    '"Multiple users requested a way to reject unwanted recommendations."\n\n' +
+    'Incorrect:\n' +
+    '"Spotify should add a Dislike button."\n\n' +
+    'Question: ' + task.question + '\n\n' +
+    'Focus on: ' + task.focus + '\n' +
+    'Ignore: ' + task.ignore + '\n\n' +
+    'Evidence rules:\n' +
+    '- Only report findings that are supported by at least two different reviews.\n' +
+    '- If a pattern appears in only one review, mention it only if it is especially distinctive.\n' +
+    '- Do not invent causes or product ideas.\n' +
+    '- Stay grounded in the supplied review evidence.\n\n' +
+    'Output format: Return 4-6 findings. For each finding include:\n' +
+    '- Observation\n' +
+    '- Supporting evidence (review IDs)\n' +
+    '- Why it matters\n\n' +
+    'Do not include conclusions or recommendations.\n\n' +
+    'Corpus size: ' + totalCount + ' total reviews collected. ' + reviews.length + ' relevant reviews supplied below.\n' +
+    'Reviews: ' + reviewText;
+}
+
+async function callGroq(apiKey, prompt) {
+  var groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + apiKey,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: AI_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: MAX_TOKENS_PER_QUESTION,
+      temperature: 0.7
+    })
+  });
+
+  var data = await groqRes.json();
+
+  if (data.error) {
+    throw new Error('Groq error: ' + data.error.message);
+  }
+
+  if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+    throw new Error('Unexpected response from Groq API.');
+  }
+
+  return data.choices[0].message.content.trim();
+}
+
+async function analyzeQuestion(task, reviews, totalCount, apiKey) {
+  var retrievedReviews = retrieveForBucket(reviews, task.bucket);
+  var prompt = buildQuestionPrompt(task, retrievedReviews, totalCount);
+  var answer = await callGroq(apiKey, prompt);
+
+  return {
+    num: task.num,
+    question: task.question,
+    answer: answer
+  };
+}
+
+function combineQuestionAnswers(sections) {
+  return sections
+    .sort(function(a, b) { return a.num - b.num; })
+    .map(function(section) {
+      return section.num + '. ' + section.question + '\n' + section.answer;
+    })
+    .join('\n\n');
+}
+
+async function runQuestionBatch(tasks, reviews, totalCount, apiKey) {
+  return Promise.all(tasks.map(function(task) {
+    return analyzeQuestion(task, reviews, totalCount, apiKey);
+  }));
+}
+
 export default async function handler(req, res) {
-  // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Get the Groq API key from Vercel environment variable (never exposed to browser)
-  const GROQ_API_KEY = process.env.GROQ_API_KEY;
+  var GROQ_API_KEY = process.env.GROQ_API_KEY;
 
   if (!GROQ_API_KEY) {
     return res.status(500).json({ error: 'GROQ_API_KEY environment variable is not set in Vercel.' });
   }
 
   try {
-    const { reviews, totalCount } = req.body;
+    var reviews = req.body.reviews;
+    var totalCount = req.body.totalCount;
 
     if (!reviews || !Array.isArray(reviews)) {
       return res.status(400).json({ error: 'Invalid request: reviews array is required.' });
     }
 
-    const reviewText = reviews.map((r, i) =>
-      `${i + 1}. [${r.source}] ${r.review}`
-    ).join(' | ');
+    var batchOne = RESEARCH_TASKS.slice(0, 3);
+    var batchTwo = RESEARCH_TASKS.slice(3);
+    var firstBatch = await runQuestionBatch(batchOne, reviews, totalCount, GROQ_API_KEY);
+    var secondBatch = await runQuestionBatch(batchTwo, reviews, totalCount, GROQ_API_KEY);
+    var analysisText = combineQuestionAnswers(firstBatch.concat(secondBatch));
 
-    const prompt = `You are a senior product research analyst at Spotify. Analyze these ${totalCount} real user reviews from App Store, Play Store, Reddit, Spotify Community Forum, and Social Media. Answer these 6 questions with detailed bullet points:
-
-1. Why do users struggle to discover new music?
-2. What are the most common frustrations with recommendations?
-3. What listening behaviors are users trying to achieve?
-4. What causes users to repeatedly listen to the same content?
-5. Which user segments experience different discovery challenges?
-6. What unmet needs emerge consistently across reviews?
-
-Reviews: ${reviewText}`;
-
-    const AI_MODEL = 'openai/gpt-oss-120b';
-
-    // Call Groq API from server side — key is safe here
-    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: AI_MODEL,
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 4096,
-        temperature: 0.7
-      })
-    });
-
-    const data = await groqRes.json();
-
-    // Handle Groq-level errors
-    if (data.error) {
-      return res.status(500).json({ error: `Groq error: ${data.error.message}` });
-    }
-
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      return res.status(500).json({ error: 'Unexpected response from Groq API.' });
-    }
-
-    const analysisText = data.choices[0].message.content;
     return res.status(200).json({ result: analysisText, model: AI_MODEL });
-
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Server error. Please try again.' });
   }
