@@ -1,7 +1,7 @@
 import { retrieveForBucket, isPurelyPositive } from './retrieval.js';
 
-const AI_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct'; // 30K TPM on Groq free tier vs 8K for gpt-oss-120b, and not a reasoning model so no hidden token overhead
-const MAX_TOKENS_PER_QUESTION = 1000; // safe headroom now that TPM is 30K, not 8K
+const AI_MODEL = 'openai/gpt-oss-120b'; // llama-4-scout was retired by Groq (June 2026); this is Groq's official migration target
+const MAX_TOKENS_PER_QUESTION = 700; // trimmed from 1000: gpt-oss-120b free tier is 8K TPM (vs scout's old 30K), so headroom is tighter
 
 const RESEARCH_TASKS = [
   {
