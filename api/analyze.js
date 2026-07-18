@@ -1,7 +1,7 @@
 import { retrieveForBucket, isPurelyPositive } from './retrieval.js';
 
-const AI_MODEL = 'openai/gpt-oss-120b'; // llama-4-scout was retired by Groq (June 2026); this is Groq's official migration target
-const MAX_TOKENS_PER_QUESTION = 700; // trimmed from 1000: gpt-oss-120b free tier is 8K TPM (vs scout's old 30K), so headroom is tighter
+const AI_MODEL = 'llama-3.1-8b-instant'; // fast Llama 3.1 on Groq free tier (30 RPM / 6K TPM / 14.4K RPD); not a reasoning model
+const MAX_TOKENS_PER_QUESTION = 900; // no hidden reasoning tokens, so more of the budget goes to the actual answer
 const MAX_RATE_LIMIT_WAIT_MS = 75000;
 
 const RESEARCH_TASKS = [
@@ -59,10 +59,9 @@ function buildReviewText(reviews) {
 
 // All the static, question-independent instructions live here as a single
 // constant so the six per-question calls share a byte-identical prefix. Sent
-// as the `system` message, this block becomes a cacheable prompt prefix on
-// Groq: after the first call it's a cache hit, and cached tokens do NOT count
-// toward the 8K TPM free-tier budget. The evidence checklist also ensures this
-// prefix clears Groq's minimum cacheable length while reinforcing quality.
+// as the `system` message so the instructions stay separate from the review
+// evidence in the user message. The evidence checklist also keeps the prompt
+// explicit about citation quality.
 const RESEARCH_SYSTEM_PROMPT =
   'You are a UX Research Analyst preparing a research report. Your responsibility is to summarize user feedback objectively. You are not a Product Manager and must not recommend features, priorities, or solutions.\n\n' +
   'RESEARCH-ONLY MODE\n\n' +
@@ -268,11 +267,7 @@ async function callGroq(apiKey, prompt, attempt, tokenBudget) {
       // Lowered from 0.7: these are grounded summarization tasks, and a lower
       // temperature keeps the model anchored to what reviews actually say
       // instead of loosely bridging weakly-related evidence to a claim.
-      temperature: 0.2,
-      // gpt-oss is a reasoning model; hidden reasoning tokens count against
-      // both max_completion_tokens and the 8K TPM budget. Low effort keeps
-      // that overhead small — these are summarization tasks, not math.
-      reasoning_effort: 'low'
+      temperature: 0.2
     })
   });
 
