@@ -968,7 +968,19 @@ async function runAnalysis() {
       })
     });
 
-    var data = await res.json();
+    // Parse defensively: if the function times out or crashes, Vercel returns
+    // a plain-text/HTML error page, and res.json() would throw Safari's cryptic
+    // "The string did not match the expected pattern." instead of a real message.
+    var rawBody = await res.text();
+    var data;
+    try {
+      data = JSON.parse(rawBody);
+    } catch (parseErr) {
+      if (res.status === 504) {
+        throw new Error('The analysis timed out on the server (504). This usually means the AI provider rate limit forced long waits. Try again in a few minutes.');
+      }
+      throw new Error('Server returned an unexpected response (HTTP ' + res.status + '). Try again shortly.');
+    }
 
     if (!res.ok || data.error) {
       throw new Error(data.error || 'Server error (' + res.status + ')');
@@ -1009,7 +1021,9 @@ async function runAnalysis() {
 
     var msg = err.message || String(err);
 
-    if (msg.indexOf('429') !== -1 || msg.toLowerCase().indexOf('rate limit') !== -1) {
+    if (msg.toLowerCase().indexOf('daily') !== -1) {
+      errorCard.innerHTML = '<div class="error-card" role="alert">📅 ' + msg + '</div>';
+    } else if (msg.indexOf('429') !== -1 || msg.toLowerCase().indexOf('rate limit') !== -1) {
       errorCard.innerHTML = '<div class="error-card" role="alert">⏱️ Rate limit hit. Wait 30–60 seconds and click Run again.</div>';
     } else if (msg.toLowerCase().indexOf('groq_api_key') !== -1 || msg.toLowerCase().indexOf('not set') !== -1) {
       errorCard.innerHTML = '<div class="error-card" role="alert">⚙️ Server config error: GROQ_API_KEY is not set in Vercel environment variables. Add it in Vercel → Settings → Environment Variables.</div>';

@@ -286,7 +286,12 @@ async function callGroq(apiKey, prompt, attempt, tokenBudget) {
     return callGroq(apiKey, prompt, attempt + 1, tokenBudget);
   }
 
-  var data = await groqRes.json();
+  var data;
+  try {
+    data = await groqRes.json();
+  } catch (parseErr) {
+    throw new Error('Groq returned a non-JSON response (HTTP ' + groqRes.status + '). Try again shortly.');
+  }
 
   if (data.error) {
     throw new Error('Groq error: ' + data.error.message);
@@ -390,9 +395,15 @@ function combineQuestionAnswers(sections) {
     .join('\n\n');
 }
 
-async function runQuestionBatch(tasks, reviews, totalCount, apiKey) {
+async function runQuestionBatch(tasks, reviews, totalCount, apiKey, deadline) {
   var results = [];
   for (var i = 0; i < tasks.length; i++) {
+    // Fail fast with a clean JSON error instead of letting Vercel kill the
+    // function at maxDuration (which returns a non-JSON 504 page the browser
+    // can't parse). 45s is roughly one worst-case Groq call incl. retries.
+    if (deadline && (deadline - Date.now()) < 45000) {
+      throw new Error('Rate limit: the AI provider is throttling requests and the analysis could not finish in time. Wait a minute and click Run again.');
+    }
     var result = await analyzeQuestion(tasks[i], reviews, totalCount, apiKey);
     results.push(result);
   }
@@ -422,10 +433,13 @@ export default async function handler(req, res) {
       return { source: review.source, review: review.review, globalId: index + 1 };
     });
 
+    // Leave ~30s of headroom under the 300s Vercel maxDuration so we always
+    // return JSON ourselves rather than being killed mid-run.
+    var deadline = Date.now() + 270000;
     var batchOne = RESEARCH_TASKS.slice(0, 3);
     var batchTwo = RESEARCH_TASKS.slice(3);
-    var firstBatch = await runQuestionBatch(batchOne, indexedReviews, totalCount, GROQ_API_KEY);
-    var secondBatch = await runQuestionBatch(batchTwo, indexedReviews, totalCount, GROQ_API_KEY);
+    var firstBatch = await runQuestionBatch(batchOne, indexedReviews, totalCount, GROQ_API_KEY, deadline);
+    var secondBatch = await runQuestionBatch(batchTwo, indexedReviews, totalCount, GROQ_API_KEY, deadline);
     var analysisText = combineQuestionAnswers(firstBatch.concat(secondBatch));
 
     return res.status(200).json({ result: analysisText, model: AI_MODEL });
