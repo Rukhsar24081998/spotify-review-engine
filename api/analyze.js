@@ -3,6 +3,11 @@ import { retrieveForBucket, isPurelyPositive } from './retrieval.js';
 const AI_MODEL = 'openai/gpt-oss-120b'; // llama-4-scout was retired by Groq (June 2026); this is Groq's official migration target
 const MAX_TOKENS_PER_QUESTION = 700; // trimmed from 1000: gpt-oss-120b free tier is 8K TPM (vs scout's old 30K), so headroom is tighter
 
+// Rough per-call budget (input ~1.8K + output ≤0.7K + reasoning overhead).
+// Used to decide whether the next call fits in the remaining TPM window.
+const ESTIMATED_TOKENS_PER_CALL = 2800;
+const MAX_RATE_LIMIT_WAIT_MS = 75000;
+
 const RESEARCH_TASKS = [
   {
     num: 1,
@@ -194,9 +199,49 @@ function normalizeFormatting(text) {
   return result.replace(/[ \t]{2,}/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
 }
 
+function sleep(ms) {
+  return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+
+// Parses Groq's x-ratelimit-reset-tokens header, which looks like
+// "7.66s", "2m59.56s", or "500ms". Returns milliseconds (0 if unparseable).
+function parseResetMs(value) {
+  if (!value) return 0;
+  var msMatch = value.match(/^(\d+(?:\.\d+)?)ms$/);
+  if (msMatch) return parseFloat(msMatch[1]);
+  var minMatch = value.match(/(\d+(?:\.\d+)?)m(?![s])/);
+  var secMatch = value.match(/(\d+(?:\.\d+)?)s/);
+  var ms = 0;
+  if (minMatch) ms += parseFloat(minMatch[1]) * 60000;
+  if (secMatch) ms += parseFloat(secMatch[1]) * 1000;
+  return ms;
+}
+
+// Proactive TPM pacing: gpt-oss-120b's free tier is 8K tokens/minute and a
+// full run needs ~15K, so back-to-back calls are guaranteed to hit 429
+// mid-run. After each response we check how much of the minute's token
+// budget is left; if the next call won't fit, we record when the window
+// resets and wait it out BEFORE firing the next request. Module-level so a
+// warm lambda also paces across invocations.
+var nextCallAllowedAt = 0;
+
+async function paceBeforeCall() {
+  var waitMs = nextCallAllowedAt - Date.now();
+  if (waitMs > 0) await sleep(waitMs);
+}
+
+function updatePacing(headers) {
+  var remaining = parseFloat(headers.get('x-ratelimit-remaining-tokens'));
+  if (isNaN(remaining) || remaining >= ESTIMATED_TOKENS_PER_CALL) return;
+  var resetMs = parseResetMs(headers.get('x-ratelimit-reset-tokens')) || 20000;
+  nextCallAllowedAt = Date.now() + Math.min(resetMs + 1000, MAX_RATE_LIMIT_WAIT_MS);
+}
+
 async function callGroq(apiKey, prompt, attempt, tokenBudget) {
   attempt = attempt || 1;
   tokenBudget = tokenBudget || MAX_TOKENS_PER_QUESTION;
+
+  await paceBeforeCall();
 
   var groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -208,16 +253,22 @@ async function callGroq(apiKey, prompt, attempt, tokenBudget) {
       model: AI_MODEL,
       messages: [{ role: 'user', content: prompt }],
       max_completion_tokens: tokenBudget,
-      temperature: 0.7
+      temperature: 0.7,
+      // gpt-oss is a reasoning model; hidden reasoning tokens count against
+      // both max_completion_tokens and the 8K TPM budget. Low effort keeps
+      // that overhead small — these are summarization tasks, not math.
+      reasoning_effort: 'low'
     })
   });
 
-  if (groqRes.status === 429 && attempt < 3) {
+  if (groqRes.status === 429 && attempt < 5) {
     var retryAfterHeader = groqRes.headers.get('retry-after');
-    var waitMs = retryAfterHeader ? (parseFloat(retryAfterHeader) * 1000) : (attempt * 5000);
-    await new Promise(function(resolve) { setTimeout(resolve, waitMs); });
+    var waitMs = retryAfterHeader ? (parseFloat(retryAfterHeader) * 1000 + 1000) : (attempt * 8000);
+    await sleep(Math.min(waitMs, MAX_RATE_LIMIT_WAIT_MS));
     return callGroq(apiKey, prompt, attempt + 1, tokenBudget);
   }
+
+  updatePacing(groqRes.headers);
 
   var data = await groqRes.json();
 
@@ -234,8 +285,7 @@ async function callGroq(apiKey, prompt, attempt, tokenBudget) {
 
   // Known Groq bug: gpt-oss models sometimes leak <think>/reasoning text into
   // the content field even though reasoning is supposed to stay in a separate
-  // "reasoning" field. Strip anything before the first numbered/dashed finding
-  // if raw reasoning markers are detected.
+  // "reasoning" field.
   content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
 
   // If the model ran out of tokens mid-answer, retry with more headroom
