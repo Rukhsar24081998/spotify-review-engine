@@ -11,7 +11,7 @@
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
-![Groq](https://img.shields.io/badge/Groq_AI-llama--3.3--70b-F55036?style=flat-square)
+![Groq](https://img.shields.io/badge/Groq_AI-gpt--oss--120b-F55036?style=flat-square)
 ![n8n](https://img.shields.io/badge/n8n-Workflow-FF6D5A?style=flat-square&logo=n8n&logoColor=white)
 
 ---
@@ -153,7 +153,7 @@ flowchart TD
 |---|---|---|
 | **Browser Dashboard** | `index.html` | Review collection UI, progress states, results cards |
 | **Vercel Serverless API** | `api/analyze.js` | Secure Groq proxy — credentials never exposed to client |
-| **Groq API** | `llama-3.3-70b-versatile` | Theme-level synthesis across six questions |
+| **Groq API** | `openai/gpt-oss-120b` | Theme-level synthesis across six questions |
 | **Insight Formatter** | Client-side parser | Splits AI output into Q1–Q6 question cards |
 | **Interactive Dashboard** | Results + summary bar | Reviews count, sources, model, execution time |
 
@@ -279,7 +279,7 @@ Technologies present in this repository and its deployment only.
 |---|---|
 | **Frontend** | HTML5, CSS3, Vanilla JavaScript, Google Fonts (Inter, Space Grotesk) |
 | **Backend** | Vercel Serverless Functions (Node.js), `api/analyze.js` |
-| **AI** | Groq API — `llama-3.3-70b-versatile` |
+| **AI** | Groq API — `openai/gpt-oss-120b` |
 | **Automation** | n8n workflow (external — `Spotify Discovery Review Engine`) |
 | **Deployment** | Vercel, `vercel.json` routing |
 | **Live data APIs** | iTunes RSS (App Store), Reddit public JSON |
