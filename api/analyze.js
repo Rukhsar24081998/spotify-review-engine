@@ -61,47 +61,57 @@ function buildReviewText(reviews) {
   }).join(' | ');
 }
 
+// All the static, question-independent instructions live here as a single
+// constant so the six per-question calls share a byte-identical prefix. Sent
+// as the `system` message, this block becomes a cacheable prompt prefix on
+// Groq: after the first call it's a cache hit, and cached tokens do NOT count
+// toward the 8K TPM free-tier budget. That's the main latency win — the
+// pacing/backoff barely has to fire because each subsequent call only spends
+// tokens on the small per-question payload. The wording is unchanged from the
+// original single-prompt version, only relocated, so answer quality is
+// preserved while throughput improves.
+const RESEARCH_SYSTEM_PROMPT =
+  'You are a UX Research Analyst preparing a research report. Your responsibility is to summarize user feedback objectively. You are not a Product Manager and must not recommend features, priorities, or solutions.\n\n' +
+  'RESEARCH-ONLY MODE\n\n' +
+  '- Report only observed user behaviors and recurring patterns.\n' +
+  '- Do not recommend features.\n' +
+  '- Do not propose solutions.\n' +
+  '- Do not prioritize improvements.\n' +
+  '- Do not write "Spotify should..."\n' +
+  '- Do not write "A good solution would be..."\n' +
+  '- If users request a feature, report it as user feedback, not as your recommendation.\n\n' +
+  'Correct:\n' +
+  '"Multiple users requested a way to reject unwanted recommendations."\n\n' +
+  'Incorrect:\n' +
+  '"Spotify should add a Dislike button."\n\n' +
+  'Evidence rules:\n' +
+  '- Only report findings that are supported by at least two different reviews.\n' +
+  '- Every review you cite for a finding must directly state or clearly describe that SAME specific claim — not just be on a related or similar topic. A review about a different aspect of the theme (e.g. wanting fresher content in general) does NOT count as support for a more specific claim (e.g. users going to another app for discovery) even if both are loosely related.\n' +
+  '- Do not reinterpret a neutral or positive review as supporting a negative finding. Do not use words like "implies," "implying," "suggests," "indicates," or "underscores" to bridge a review to a claim it does not directly make — if you find yourself reasoning your way from a review to a claim instead of quoting/paraphrasing a direct statement, that review does not count as support.\n' +
+  '- Before citing 2 reviews for a finding, check each one individually: does it, on its own, state this exact claim? If only one of them does, treat the finding as single-review.\n' +
+  '- This evidence-checking is INTERNAL reasoning only. NEVER write it into your answer. Do not write sentences like "Review N does not directly support..." or "however Review N supports..." — if a candidate review fails the check, silently drop it and cite only the reviews that pass. The reader must never see your evaluation process, only your conclusions.\n' +
+  '- Each finding has EXACTLY ONE "Supporting evidence" field. Never write "Supporting evidence" twice within the same finding — gather every citation for that finding into a single field, in one place.\n' +
+  '- If a pattern appears in only one review, you may report it ONLY if it is especially distinctive, and in that case the Observation MUST start with "(Single-review finding)" so readers know the evidence is weaker.\n' +
+  '- Do not invent causes or product ideas.\n' +
+  '- Stay grounded in the supplied review evidence.\n\n' +
+  'Output format: Return 3-5 findings. Keep each field to 1-2 sentences — be concise, not exhaustive. For each finding include:\n' +
+  '- Observation\n' +
+  '- Supporting evidence (cite using the exact "Review N" numbers shown in the user message — these are fixed IDs from the full review set, not sequential. For EVERY review number you cite, include a short quote or close paraphrase, under 12 words, of what that specific review says — never list a bare "Review N" with no quote or paraphrase attached.)\n' +
+  '- Why it matters\n\n' +
+  'Do not include conclusions or recommendations.\n\n' +
+  'Do not add any commentary about your own process — no notes explaining which reviews you excluded and why, no remarks like "no additional findings were included," no mention of finding counts falling short of the target, no phrases like "only N meaningful findings were found," no trailing sentence explaining why the list stops early. If you have fewer than 5 findings, just stop after your last finding — write nothing else. Just output the findings themselves and nothing else.\n\n' +
+  'Final check before you answer: for each finding, count how many DIFFERENT review numbers you cited. If that count is 1, the Observation MUST begin with "(Single-review finding)". If you wrote a finding with only one review number and forgot this label, add it now before responding.';
+
 function buildQuestionPrompt(task, reviews, totalCount) {
   var reviewText = buildReviewText(reviews);
-  var problemFramedBuckets = PROBLEM_FRAMED_BUCKETS;
-  var sentimentRule = problemFramedBuckets.indexOf(task.bucket) !== -1
+  var sentimentRule = PROBLEM_FRAMED_BUCKETS.indexOf(task.bucket) !== -1
     ? 'Sentiment rule: This question is about a problem, struggle, frustration, or unmet need. A review that is purely positive/appreciative with no complaint, wish, or missing-feature language in it (e.g. "I love this app", "best app ever", generic praise) is NOT evidence for this question, even if it happens to mention a relevant feature or topic. Do not report a purely appreciative review as if it revealed a need or frustration. If none of the supplied reviews support a particular angle, simply omit it — do not manufacture a finding from positive-only evidence.\n\n'
     : '';
 
-  return 'You are a UX Research Analyst preparing a research report. Your responsibility is to summarize user feedback objectively. You are not a Product Manager and must not recommend features, priorities, or solutions.\n\n' +
-    'RESEARCH-ONLY MODE\n\n' +
-    '- Report only observed user behaviors and recurring patterns.\n' +
-    '- Do not recommend features.\n' +
-    '- Do not propose solutions.\n' +
-    '- Do not prioritize improvements.\n' +
-    '- Do not write "Spotify should..."\n' +
-    '- Do not write "A good solution would be..."\n' +
-    '- If users request a feature, report it as user feedback, not as your recommendation.\n\n' +
-    'Correct:\n' +
-    '"Multiple users requested a way to reject unwanted recommendations."\n\n' +
-    'Incorrect:\n' +
-    '"Spotify should add a Dislike button."\n\n' +
-    'Question: ' + task.question + '\n\n' +
+  return 'Question: ' + task.question + '\n\n' +
     'Focus on: ' + task.focus + '\n' +
     'Ignore: ' + task.ignore + '\n\n' +
     sentimentRule +
-    'Evidence rules:\n' +
-    '- Only report findings that are supported by at least two different reviews.\n' +
-    '- Every review you cite for a finding must directly state or clearly describe that SAME specific claim — not just be on a related or similar topic. A review about a different aspect of the theme (e.g. wanting fresher content in general) does NOT count as support for a more specific claim (e.g. users going to another app for discovery) even if both are loosely related.\n' +
-    '- Do not reinterpret a neutral or positive review as supporting a negative finding. Do not use words like "implies," "implying," "suggests," "indicates," or "underscores" to bridge a review to a claim it does not directly make — if you find yourself reasoning your way from a review to a claim instead of quoting/paraphrasing a direct statement, that review does not count as support.\n' +
-    '- Before citing 2 reviews for a finding, check each one individually: does it, on its own, state this exact claim? If only one of them does, treat the finding as single-review.\n' +
-    '- This evidence-checking is INTERNAL reasoning only. NEVER write it into your answer. Do not write sentences like "Review N does not directly support..." or "however Review N supports..." — if a candidate review fails the check, silently drop it and cite only the reviews that pass. The reader must never see your evaluation process, only your conclusions.\n' +
-    '- Each finding has EXACTLY ONE "Supporting evidence" field. Never write "Supporting evidence" twice within the same finding — gather every citation for that finding into a single field, in one place.\n' +
-    '- If a pattern appears in only one review, you may report it ONLY if it is especially distinctive, and in that case the Observation MUST start with "(Single-review finding)" so readers know the evidence is weaker.\n' +
-    '- Do not invent causes or product ideas.\n' +
-    '- Stay grounded in the supplied review evidence.\n\n' +
-    'Output format: Return 3-5 findings. Keep each field to 1-2 sentences — be concise, not exhaustive. For each finding include:\n' +
-    '- Observation\n' +
-    '- Supporting evidence (cite using the exact "Review N" numbers shown below — these are fixed IDs from the full review set, not sequential. For EVERY review number you cite, include a short quote or close paraphrase, under 12 words, of what that specific review says — never list a bare "Review N" with no quote or paraphrase attached.)\n' +
-    '- Why it matters\n\n' +
-    'Do not include conclusions or recommendations.\n\n' +
-    'Do not add any commentary about your own process — no notes explaining which reviews you excluded and why, no remarks like "no additional findings were included," no mention of finding counts falling short of the target, no phrases like "only N meaningful findings were found," no trailing sentence explaining why the list stops early. If you have fewer than 5 findings, just stop after your last finding — write nothing else. Just output the findings themselves and nothing else.\n\n' +
-    'Final check before you answer: for each finding, count how many DIFFERENT review numbers you cited. If that count is 1, the Observation MUST begin with "(Single-review finding)". If you wrote a finding with only one review number and forgot this label, add it now before responding.\n\n' +
     'Corpus size: ' + totalCount + ' total reviews collected. ' + reviews.length + ' relevant reviews supplied below.\n' +
     'Reviews: ' + reviewText;
 }
@@ -123,7 +133,8 @@ function normalizeFormatting(text) {
       /\bmeaningful findings?\b/i,
       /\bfindings? (were|was) (found|included)\b/i,
       /^only \d+/i,
-      /^\d+\.\s*$/  // stray bare numbering like "2." left over from a numbered list
+      /^\d+\.\s*$/,  // stray bare numbering like "2." left over from a numbered list
+      /^\*+$/        // stray asterisk-only separators (rendered as a lone "**")
     ];
     return !metaPatterns.some(function(p) { return p.test(l); });
   }).join('\n');
@@ -181,6 +192,21 @@ function normalizeFormatting(text) {
     // (e.g. "Review 24 does not directly support..., however Review 8...").
     part = part.replace(/[^.]*\b(does not directly support|does not support|is not directly supported)\b[^.]*\.\s*/gi, '');
     part = part.replace(/\bhowever,?\s+/gi, '');
+
+    // Honesty net: a finding is only "supported" if it cites at least two
+    // DIFFERENT reviews. If it cites fewer than two distinct Review IDs and
+    // isn't already flagged, prepend the weak-evidence label so a single-
+    // citation claim is never presented with the same weight as a
+    // corroborated one.
+    var distinctIds = {};
+    var idRe = /Review\s+(\d+)/g;
+    var idMatch;
+    while ((idMatch = idRe.exec(part)) !== null) {
+      distinctIds[idMatch[1]] = true;
+    }
+    if (Object.keys(distinctIds).length < 2 && !/\(single-review finding\)/i.test(part)) {
+      part = part.replace(/(\*\*Observation:\*\*\s*)/i, '$1(Single-review finding) ');
+    }
 
     return '**Finding ' + findingNum + '**\n\n' + part;
   });
@@ -251,9 +277,18 @@ async function callGroq(apiKey, prompt, attempt, tokenBudget) {
     },
     body: JSON.stringify({
       model: AI_MODEL,
-      messages: [{ role: 'user', content: prompt }],
+      // Static instructions go in the system message (identical across all six
+      // calls, so Groq caches the prefix and it stops counting toward TPM).
+      // Only the per-question payload varies in the user message.
+      messages: [
+        { role: 'system', content: RESEARCH_SYSTEM_PROMPT },
+        { role: 'user', content: prompt }
+      ],
       max_completion_tokens: tokenBudget,
-      temperature: 0.7,
+      // Lowered from 0.7: these are grounded summarization tasks, and a lower
+      // temperature keeps the model anchored to what reviews actually say
+      // instead of loosely bridging weakly-related evidence to a claim.
+      temperature: 0.2,
       // gpt-oss is a reasoning model; hidden reasoning tokens count against
       // both max_completion_tokens and the 8K TPM budget. Low effort keeps
       // that overhead small — these are summarization tasks, not math.
