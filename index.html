@@ -446,6 +446,8 @@ function resetLoadingUI() {
     if (step) { step.classList.remove('active', 'done'); step.style.display = 'none'; }
     if (icon) icon.innerHTML = '○';
   });
+  var aiLabel = document.querySelector('#load-ai .step-label');
+  if (aiLabel) aiLabel.textContent = 'Running AI thematic analysis…';
   var d1 = document.getElementById('loadingDivider1');
   var d2 = document.getElementById('loadingDivider2');
   var spinner = document.getElementById('loadingSpinner');
@@ -905,6 +907,60 @@ async function fetchReddit() {
   return reviews;
 }
 
+// ─── PER-QUESTION ANALYSIS CALLS ─────────────────────────────────────────────
+function setAiProgress(qNum) {
+  var label = document.querySelector('#load-ai .step-label');
+  if (label) label.textContent = 'Running AI thematic analysis… (question ' + qNum + ' of 6)';
+  announceLoading('Running AI thematic analysis, question ' + qNum + ' of 6');
+}
+
+async function analyzeSingleQuestion(sample, totalCount, qNum) {
+  var maxAttempts = 3;
+
+  for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+    var failureMessage;
+    try {
+      var res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reviews: sample,
+          totalCount: totalCount,
+          questionNum: qNum
+        })
+      });
+
+      // Parse as text first: if the function crashes or times out, Vercel
+      // returns a non-JSON error page and res.json() would throw a cryptic
+      // Safari error instead of something readable.
+      var rawBody = await res.text();
+      var data;
+      try {
+        data = JSON.parse(rawBody);
+      } catch (parseErr) {
+        throw new Error('Server returned an unexpected response (HTTP ' + res.status + ').');
+      }
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Server error (' + res.status + ')');
+      }
+
+      return data;
+    } catch (err) {
+      failureMessage = err.message || String(err);
+      if (attempt === maxAttempts) {
+        throw new Error('Question ' + qNum + ' failed after ' + maxAttempts + ' attempts: ' + failureMessage);
+      }
+    }
+
+    // Rate-limit errors need a real pause for the per-minute token window to
+    // reset; transient network hiccups ("Load failed") just need a moment.
+    var lower = (failureMessage || '').toLowerCase();
+    var isRateLimit = lower.indexOf('rate limit') !== -1 || lower.indexOf('429') !== -1;
+    await new Promise(function(resolve) { setTimeout(resolve, isRateLimit ? 25000 : 4000); });
+  }
+}
+
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 async function runAnalysis() {
   var btn            = document.getElementById('runBtn');
@@ -958,33 +1014,22 @@ async function runAnalysis() {
 
     showAiLoadingPhase();
 
-    // ── Call our own Vercel serverless function (key is safe on the server) ──
-    var res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        reviews: sample,
-        totalCount: allReviews.length
-      })
-    });
-
-    // Parse defensively: if the function times out or crashes, Vercel returns
-    // a plain-text/HTML error page, and res.json() would throw Safari's cryptic
-    // "The string did not match the expected pattern." instead of a real message.
-    var rawBody = await res.text();
-    var data;
-    try {
-      data = JSON.parse(rawBody);
-    } catch (parseErr) {
-      if (res.status === 504) {
-        throw new Error('The analysis timed out on the server (504). This usually means the AI provider rate limit forced long waits. Try again in a few minutes.');
-      }
-      throw new Error('Server returned an unexpected response (HTTP ' + res.status + '). Try again shortly.');
+    // ── Ask our Vercel function one research question at a time ──
+    // One request per question keeps each HTTP round-trip short. A single
+    // 6-question request can run for minutes when the AI provider throttles,
+    // and Safari kills fetches that stay open that long ("Load failed").
+    var sections = [];
+    var usedModel = null;
+    for (var qNum = 1; qNum <= 6; qNum++) {
+      setAiProgress(qNum);
+      var section = await analyzeSingleQuestion(sample, allReviews.length, qNum);
+      usedModel = section.model || usedModel;
+      sections.push(section);
     }
 
-    if (!res.ok || data.error) {
-      throw new Error(data.error || 'Server error (' + res.status + ')');
-    }
+    var combinedResult = sections.map(function(s) {
+      return s.num + '. ' + s.question + '\n' + s.answer;
+    }).join('\n\n');
 
     var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
@@ -993,16 +1038,16 @@ async function runAnalysis() {
 
     lastAnalysisExport = {
       sections: [],
-      raw: data.result,
-      model: data.model,
+      raw: combinedResult,
+      model: usedModel,
       reviewCount: allReviews.length,
       elapsed: elapsed,
       timestamp: formatTimestamp(),
       confidence: computeConfidence(allReviews.length)
     };
 
-    updateExecutiveSummary(allReviews.length, elapsed, data.model);
-    renderResultCards(data.result);
+    updateExecutiveSummary(allReviews.length, elapsed, usedModel);
+    renderResultCards(combinedResult);
     setLoadingDone('insights');
 
     await new Promise(function(resolve) { setTimeout(resolve, 450); });

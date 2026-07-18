@@ -433,8 +433,28 @@ export default async function handler(req, res) {
       return { source: review.source, review: review.review, globalId: index + 1 };
     });
 
-    // Leave ~30s of headroom under the 300s Vercel maxDuration so we always
-    // return JSON ourselves rather than being killed mid-run.
+    // Single-question mode: the browser sends one request per research
+    // question so each HTTP request stays short (Safari kills fetches that
+    // hang around ~60s waiting for a slow multi-minute run). Same analysis
+    // per question as the full run — just delivered incrementally.
+    var questionNum = req.body.questionNum;
+    if (questionNum) {
+      var task = RESEARCH_TASKS.find(function(t) { return t.num === Number(questionNum); });
+      if (!task) {
+        return res.status(400).json({ error: 'Invalid questionNum: must be 1-6.' });
+      }
+      var section = await analyzeQuestion(task, indexedReviews, totalCount, GROQ_API_KEY);
+      return res.status(200).json({
+        num: section.num,
+        question: section.question,
+        answer: section.answer,
+        model: AI_MODEL
+      });
+    }
+
+    // Full-run mode (legacy): all six questions in one request. Leave ~30s of
+    // headroom under the 300s Vercel maxDuration so we always return JSON
+    // ourselves rather than being killed mid-run.
     var deadline = Date.now() + 270000;
     var batchOne = RESEARCH_TASKS.slice(0, 3);
     var batchTwo = RESEARCH_TASKS.slice(3);
