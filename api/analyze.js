@@ -2,10 +2,6 @@ import { retrieveForBucket, isPurelyPositive } from './retrieval.js';
 
 const AI_MODEL = 'openai/gpt-oss-120b'; // llama-4-scout was retired by Groq (June 2026); this is Groq's official migration target
 const MAX_TOKENS_PER_QUESTION = 700; // trimmed from 1000: gpt-oss-120b free tier is 8K TPM (vs scout's old 30K), so headroom is tighter
-
-// Rough per-call budget (input ~1.8K + output ≤0.7K + reasoning overhead).
-// Used to decide whether the next call fits in the remaining TPM window.
-const ESTIMATED_TOKENS_PER_CALL = 2800;
 const MAX_RATE_LIMIT_WAIT_MS = 75000;
 
 const RESEARCH_TASKS = [
@@ -65,11 +61,8 @@ function buildReviewText(reviews) {
 // constant so the six per-question calls share a byte-identical prefix. Sent
 // as the `system` message, this block becomes a cacheable prompt prefix on
 // Groq: after the first call it's a cache hit, and cached tokens do NOT count
-// toward the 8K TPM free-tier budget. That's the main latency win — the
-// pacing/backoff barely has to fire because each subsequent call only spends
-// tokens on the small per-question payload. The wording is unchanged from the
-// original single-prompt version, only relocated, so answer quality is
-// preserved while throughput improves.
+// toward the 8K TPM free-tier budget. The evidence checklist also ensures this
+// prefix clears Groq's minimum cacheable length while reinforcing quality.
 const RESEARCH_SYSTEM_PROMPT =
   'You are a UX Research Analyst preparing a research report. Your responsibility is to summarize user feedback objectively. You are not a Product Manager and must not recommend features, priorities, or solutions.\n\n' +
   'RESEARCH-ONLY MODE\n\n' +
@@ -94,6 +87,15 @@ const RESEARCH_SYSTEM_PROMPT =
   '- If a pattern appears in only one review, you may report it ONLY if it is especially distinctive, and in that case the Observation MUST start with "(Single-review finding)" so readers know the evidence is weaker.\n' +
   '- Do not invent causes or product ideas.\n' +
   '- Stay grounded in the supplied review evidence.\n\n' +
+  'Evidence adjudication checklist:\n' +
+  '1. Write the narrowest claim that the reviews directly support. Do not add a cause, consequence, workaround, platform, user segment, or motivation unless the cited review explicitly states it.\n' +
+  '2. Test every citation independently. Remove a citation if it only shares the broad topic but does not support the exact observation.\n' +
+  '3. Do not turn a request into proof of behavior. For example, asking for fresher recommendations does not prove that a user switched platforms, used radio, or stopped listening.\n' +
+  '4. Do not turn a product malfunction into a different malfunction. Preview playback is not evidence of repetition; missing suggestions are not evidence of inaccurate suggestions.\n' +
+  '5. Do not infer sentiment or commercial impact. A complaint can establish frustration, but it does not establish churn, retention loss, or willingness to pay unless the review says so.\n' +
+  '6. Keep each finding atomic. If two citations support different parts of a compound sentence, split or narrow the claim rather than combining them.\n' +
+  '7. Supporting evidence must quote or closely paraphrase the exact language that proves the observation. Never use parenthetical reasoning such as "(indicating...)" or "(implying...)" to repair weak evidence.\n' +
+  '8. "Why it matters" may explain the user-experience relevance of the observed pattern, but must not introduce a new factual claim or recommend a solution.\n\n' +
   'Output format: Return 3-5 findings. Keep each field to 1-2 sentences — be concise, not exhaustive. For each finding include:\n' +
   '- Observation\n' +
   '- Supporting evidence (cite using the exact "Review N" numbers shown in the user message — these are fixed IDs from the full review set, not sequential. For EVERY review number you cite, include a short quote or close paraphrase, under 12 words, of what that specific review says — never list a bare "Review N" with no quote or paraphrase attached.)\n' +
@@ -243,31 +245,9 @@ function parseResetMs(value) {
   return ms;
 }
 
-// Proactive TPM pacing: gpt-oss-120b's free tier is 8K tokens/minute and a
-// full run needs ~15K, so back-to-back calls are guaranteed to hit 429
-// mid-run. After each response we check how much of the minute's token
-// budget is left; if the next call won't fit, we record when the window
-// resets and wait it out BEFORE firing the next request. Module-level so a
-// warm lambda also paces across invocations.
-var nextCallAllowedAt = 0;
-
-async function paceBeforeCall() {
-  var waitMs = nextCallAllowedAt - Date.now();
-  if (waitMs > 0) await sleep(waitMs);
-}
-
-function updatePacing(headers) {
-  var remaining = parseFloat(headers.get('x-ratelimit-remaining-tokens'));
-  if (isNaN(remaining) || remaining >= ESTIMATED_TOKENS_PER_CALL) return;
-  var resetMs = parseResetMs(headers.get('x-ratelimit-reset-tokens')) || 20000;
-  nextCallAllowedAt = Date.now() + Math.min(resetMs + 1000, MAX_RATE_LIMIT_WAIT_MS);
-}
-
 async function callGroq(apiKey, prompt, attempt, tokenBudget) {
   attempt = attempt || 1;
   tokenBudget = tokenBudget || MAX_TOKENS_PER_QUESTION;
-
-  await paceBeforeCall();
 
   var groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -298,12 +278,13 @@ async function callGroq(apiKey, prompt, attempt, tokenBudget) {
 
   if (groqRes.status === 429 && attempt < 5) {
     var retryAfterHeader = groqRes.headers.get('retry-after');
-    var waitMs = retryAfterHeader ? (parseFloat(retryAfterHeader) * 1000 + 1000) : (attempt * 8000);
+    var resetHeader = groqRes.headers.get('x-ratelimit-reset-tokens');
+    var waitMs = retryAfterHeader
+      ? (parseFloat(retryAfterHeader) * 1000 + 500)
+      : (parseResetMs(resetHeader) || attempt * 5000);
     await sleep(Math.min(waitMs, MAX_RATE_LIMIT_WAIT_MS));
     return callGroq(apiKey, prompt, attempt + 1, tokenBudget);
   }
-
-  updatePacing(groqRes.headers);
 
   var data = await groqRes.json();
 
